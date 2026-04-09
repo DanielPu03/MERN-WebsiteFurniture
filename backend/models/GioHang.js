@@ -4,18 +4,18 @@ const chiTietGioHangSchema = new mongoose.Schema({
   sanPhamId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'SanPham',
-    required: true
+    required: [true, 'ID sản phẩm là bắt buộc']
   },
   soLuong: {
     type: Number,
-    required: true,
-    min: 1,
+    required: [true, 'Số lượng là bắt buộc'],
+    min: [1, 'Số lượng phải lớn hơn 0'],
     default: 1
   },
   gia: {
     type: Number,
-    required: true,
-    min: 0
+    required: [true, 'Giá là bắt buộc'],
+    min: [0, 'Giá phải lớn hơn hoặc bằng 0']
   }
 }, { _id: false });
 
@@ -23,7 +23,7 @@ const gioHangSchema = new mongoose.Schema({
   nguoiDungId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'NguoiDung',
-    required: true,
+    required: [true, 'ID người dùng là bắt buộc'],
     unique: true
   },
   danhSachSanPham: [chiTietGioHangSchema],

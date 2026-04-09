@@ -1,33 +1,24 @@
 const express = require('express');
 const { protect, adminOnly } = require('../middleware/auth');
-const asyncHandler = require('../utils/asyncHandler');
 const {
   getProducts,
   getProductById,
   createProduct,
   updateProduct,
   deleteProduct,
-  getRelatedProducts
+  getProductCollections
 } = require('../controllers/productController');
 
 const router = express.Router();
 
-// GET /api/products
-router.get('/', asyncHandler(getProducts));
+// Public routes
+router.get('/', getProducts);
+router.get('/collections', getProductCollections);
+router.get('/:id', getProductById);
 
-// GET /api/products/:id
-router.get('/:id', asyncHandler(getProductById));
-
-// POST /api/products
-router.post('/', protect, adminOnly, asyncHandler(createProduct));
-
-// PUT /api/products/:id
-router.put('/:id', protect, adminOnly, asyncHandler(updateProduct));
-
-// DELETE /api/products/:id
-router.delete('/:id', protect, adminOnly, asyncHandler(deleteProduct));
-
-// GET /api/products/:id/related
-router.get('/:id/related', asyncHandler(getRelatedProducts));
+// Admin only routes
+router.post('/', protect, adminOnly, createProduct);
+router.put('/:id', protect, adminOnly, updateProduct);
+router.delete('/:id', protect, adminOnly, deleteProduct);
 
 module.exports = router;

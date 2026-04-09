@@ -1,6 +1,5 @@
 const express = require('express');
 const { protect, adminOnly } = require('../middleware/auth');
-const asyncHandler = require('../utils/asyncHandler');
 const {
   getAllBrands,
   getBrandById,
@@ -11,19 +10,13 @@ const {
 
 const router = express.Router();
 
-// GET /api/brands
-router.get('/', asyncHandler(getAllBrands));
+// Public routes
+router.get('/', getAllBrands);
+router.get('/:id', getBrandById);
 
-// GET /api/brands/:id
-router.get('/:id', asyncHandler(getBrandById));
-
-// POST /api/brands (admin only)
-router.post('/', protect, adminOnly, asyncHandler(createBrand));
-
-// PUT /api/brands/:id (admin only)
-router.put('/:id', protect, adminOnly, asyncHandler(updateBrand));
-
-// DELETE /api/brands/:id (admin only)
-router.delete('/:id', protect, adminOnly, asyncHandler(deleteBrand));
+// Admin only routes
+router.post('/', protect, adminOnly, createBrand);
+router.put('/:id', protect, adminOnly, updateBrand);
+router.delete('/:id', protect, adminOnly, deleteBrand);
 
 module.exports = router;

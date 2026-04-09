@@ -3,15 +3,15 @@ const mongoose = require('mongoose');
 const thuongHieuSchema = new mongoose.Schema({
   tenThuongHieu: {
     type: String,
-    required: true,
+    required: [true, 'Tên thương hiệu là bắt buộc'],
     unique: true,
     trim: true,
-    maxlength: 100
+    maxlength: [50]
   },
   moTa: {
     type: String,
     trim: true,
-    maxlength: 500
+    maxlength: [255]
   },
   logo: {
     type: String,

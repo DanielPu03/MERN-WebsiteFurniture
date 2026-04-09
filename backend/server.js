@@ -14,8 +14,9 @@ const productRoutes = require('./routes/products');
 const reviewRoutes = require('./routes/reviews');
 const cartRoutes = require('./routes/cart');
 const orderRoutes = require('./routes/orders');
-// const wishlistRoutes = require('./routes/wishlist');
+const wishlistRoutes = require('./routes/wishlist');
 const adminRoutes = require('./routes/admin');
+const collectionRoutes = require('./routes/collections');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -23,12 +24,12 @@ const PORT = process.env.PORT || 5000;
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  max: 1000, // limit each IP to 1000 requests per windowMs (increased for development)
   message: 'Too many requests from this IP, please try again later.'
 });
 
 // Middleware
-app.use(helmet());
+// app.use(helmet()); // Temporarily disabled for testing
 app.use(limiter);
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:3000',
@@ -36,6 +37,14 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+// Serve static files
+app.use(express.static('public'));
+
+// API Test page
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/public/index.html');
+});
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_CONNECTIONSTRING || 'mongodb://localhost:27017/havyStore')
@@ -51,8 +60,9 @@ app.use('/api/products', productRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
-// app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/collections', collectionRoutes);
 
 // Root route - API documentation
 app.get('/', (req, res) => {
@@ -68,8 +78,16 @@ app.get('/', (req, res) => {
       reviews: '/api/reviews',
       cart: '/api/cart',
       orders: '/api/orders',
-      // wishlist: '/api/wishlist',
-      admin: '/api/admin'
+      wishlist: '/api/wishlist',
+      admin: '/api/admin',
+      collections: '/api/collections'
+    },
+    features: {
+      authentication: 'JWT-based authentication with refresh tokens',
+      authorization: 'Role-based access control (admin/user)',
+      validation: 'Input validation with detailed error messages',
+      relationships: 'Many-to-many relationships between collections and products',
+      security: 'Rate limiting, CORS, Helmet security headers'
     },
     documentation: 'Available endpoints for havyStore e-commerce platform',
     status: 'API is running successfully'

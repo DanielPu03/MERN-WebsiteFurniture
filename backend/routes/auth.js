@@ -1,6 +1,5 @@
 const express = require('express');
 const { protect } = require('../middleware/auth');
-const asyncHandler = require('../utils/asyncHandler');
 const {
   register,
   login,
@@ -11,19 +10,13 @@ const {
 
 const router = express.Router();
 
-// POST /api/auth/register
-router.post('/register', asyncHandler(register));
+// Public routes
+router.post('/register', register);
+router.post('/login', login);
 
-// POST /api/auth/login
-router.post('/login', asyncHandler(login));
-
-// GET /api/auth/me
-router.get('/me', protect, asyncHandler(getMe));
-
-// PUT /api/auth/profile
-router.put('/profile', protect, asyncHandler(updateProfile));
-
-// PUT /api/auth/password
-router.put('/password', protect, asyncHandler(changePassword));
+// Protected routes
+router.get('/me', protect, getMe);
+router.put('/profile', protect, updateProfile);
+router.put('/password', protect, changePassword);
 
 module.exports = router;

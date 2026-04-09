@@ -1,4 +1,5 @@
 const DanhMuc = require('../models/DanhMuc');
+const SanPham = require('../models/SanPham');
 
 // Get all categories
 const getAllCategories = async (req, res) => {
@@ -25,6 +26,50 @@ const getCategoryById = async (req, res) => {
     success: true,
     data: { category }
   });
+};
+
+// Get products by category
+const getProductsByCategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { limit = 4, exclude } = req.query;
+
+    // Verify category exists
+    const category = await DanhMuc.findById(id);
+    if (!category) {
+      return res.status(404).json({
+        success: false,
+        message: 'Category not found'
+      });
+    }
+
+    // Build query
+    const query = { 
+      danhMucId: id,
+      trangThai: true 
+    };
+
+    // Exclude specific product if provided
+    if (exclude) {
+      query._id = { $ne: exclude };
+    }
+
+    const products = await SanPham.find(query)
+      .populate('danhMucId', 'tenDanhMuc')
+      .populate('thuongHieuId', 'tenThuongHieu')
+      .limit(parseInt(limit))
+      .sort({ ngayTao: -1 });
+
+    res.status(200).json({
+      success: true,
+      data: { products }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
 };
 
 // Create category (admin only)
@@ -90,6 +135,7 @@ const deleteCategory = async (req, res) => {
 module.exports = {
   getAllCategories,
   getCategoryById,
+  getProductsByCategory,
   createCategory,
   updateCategory,
   deleteCategory

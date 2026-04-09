@@ -4,7 +4,7 @@ const wishlistDetailSchema = new mongoose.Schema({
   sanPhamId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'SanPham',
-    required: true
+    required: [true, 'ID sản phẩm là bắt buộc']
   },
   ngayThem: {
     type: Date,
@@ -16,7 +16,7 @@ const wishlistSchema = new mongoose.Schema({
   nguoiDungId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'NguoiDung',
-    required: true,
+    required: [true, 'ID người dùng là bắt buộc'],
     unique: true
   },
   danhSachSanPham: [wishlistDetailSchema],

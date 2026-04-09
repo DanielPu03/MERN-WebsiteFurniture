@@ -4,26 +4,53 @@ const bcrypt = require('bcryptjs');
 const userSchema = new mongoose.Schema({
   hoTen: {
     type: String,
-    required: true,
+    required: [true, 'Họ và tên là bắt buộc'],
     trim: true,
-    maxlength: 100
+    maxlength: [55, 'Họ và tên không được bỏ trống']
   },
   email: {
     type: String,
-    required: true,
+    required: [true, 'Email là bắt buộc'],
     unique: true,
     lowercase: true,
-    trim: true
+    trim: true,
+    validate: {
+      validator: function(v) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+      },
+      message: 'Email không hợp lệ'
+    }
   },
   matKhau: {
     type: String,
-    required: true,
-    minlength: 6
+    required: [true, 'Mật khẩu là bắt buộc'],
+    minlength: [6, 'Mật khẩu phải có ít nhất 6 ký tự'],
+    validate: {
+      validator: function(v) {
+        // Kiểm tra có chữ hoa, chữ thường, số
+        const hasUpperCase = /[A-Z]/.test(v);
+        const hasLowerCase = /[a-z]/.test(v);
+        const hasNumber = /[0-9]/.test(v);
+        return hasUpperCase && hasLowerCase && hasNumber;
+      },
+      message: 'Mật khẩu phải có ít nhất 1 chữ hoa, 1 chữ thường và 1 số'
+    }
   },
   soDienThoai: {
     type: String,
-    required: true,
-    trim: true
+    required: [true, 'Số điện thoại là bắt buộc'],
+    trim: true,
+    validate: {
+      validator: function(v) {
+        return /^[0-9]{10}$/.test(v);
+      },
+      message: 'Số điện thoại phải có 10 chữ số'
+    }
+  },
+  diaChi: {
+    type: String,
+    trim: true,
+    maxlength: [255, 'Địa chỉ không được bỏ trống']
   },
   role: {
     type: Number,

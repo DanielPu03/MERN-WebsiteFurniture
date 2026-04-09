@@ -4,39 +4,48 @@ const diaChiSchema = new mongoose.Schema({
   nguoiDungId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'NguoiDung',
-    required: true
+    required: [true]
   },
   tenNguoiNhan: {
     type: String,
-    required: true,
+    required: [true, 'Tên người nhận là bắt buộc'],
     trim: true,
-    maxlength: 100
+    maxlength: [100]
   },
   soDienThoai: {
     type: String,
-    required: true,
-    trim: true
+    required: [true, 'Số điện thoại là bắt buộc'],
+    trim: true,
+    validate: {
+      validator: function(v) {
+        return /^[0-9]{10}$/.test(v);
+      },
+      message: 'Số điện thoại phải có 10 chữ số'
+    }
   },
   diaChiCuThe: {
     type: String,
-    required: true,
+    required: [true, 'Địa chỉ cụ thể là bắt buộc'],
     trim: true,
-    maxlength: 200
+    maxlength: [255]
   },
   phuongXa: {
     type: String,
-    required: true,
-    trim: true
+    required: [true, 'Phường/Xã là bắt buộc'],
+    trim: true,
+    maxlength: [100]
   },
   quanHuyen: {
     type: String,
-    required: true,
-    trim: true
+    required: [true, 'Quận/Huyện là bắt buộc'],
+    trim: true,
+    maxlength: [100]
   },
   tinhThanh: {
     type: String,
-    required: true,
-    trim: true
+    required: [true, 'Tỉnh/Thành phố là bắt buộc'],
+    trim: true,
+    maxlength: [100]
   },
   macDinh: {
     type: Boolean,

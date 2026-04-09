@@ -3,15 +3,15 @@ const mongoose = require('mongoose');
 const danhMucSchema = new mongoose.Schema({
   tenDanhMuc: {
     type: String,
-    required: true,
+    required: [true, 'Tên danh mục là bắt buộc'],
     unique: true,
     trim: true,
-    maxlength: 100
+    maxlength: [50]
   },
   moTa: {
     type: String,
     trim: true,
-    maxlength: 500
+    maxlength: [255]
   },
   icon: {
     type: String,

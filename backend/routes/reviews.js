@@ -1,6 +1,5 @@
 const express = require('express');
 const { protect, adminOnly } = require('../middleware/auth');
-const asyncHandler = require('../utils/asyncHandler');
 const {
   getProductReviews,
   createReview,
@@ -11,29 +10,13 @@ const {
 
 const router = express.Router();
 
-// @desc    Get reviews for a product
-// @route   GET /api/reviews/product/:sanPhamId
-// @access  Public
-router.get('/product/:sanPhamId', asyncHandler(getProductReviews));
+// Public routes
+router.get('/product/:sanPhamId', getProductReviews);
 
-// @desc    Create new review
-// @route   POST /api/reviews
-// @access  Private
-router.post('/', protect, asyncHandler(createReview));
-
-// @desc    Update review
-// @route   PUT /api/reviews/:id
-// @access  Private
-router.put('/:id', protect, asyncHandler(updateReview));
-
-// @desc    Delete review
-// @route   DELETE /api/reviews/:id
-// @access  Private
-router.delete('/:id', protect, asyncHandler(deleteReview));
-
-// @desc    Get my reviews
-// @route   GET /api/reviews/my-reviews
-// @access  Private
-router.get('/my-reviews', protect, asyncHandler(getUserReviews));
+// Protected routes
+router.post('/', protect, createReview);
+router.put('/:id', protect, updateReview);
+router.delete('/:id', protect, deleteReview);
+router.get('/my-reviews', protect, getUserReviews);
 
 module.exports = router;

@@ -1,223 +1,322 @@
 const SanPham = require('../models/SanPham');
 const DanhMuc = require('../models/DanhMuc');
 const ThuongHieu = require('../models/ThuongHieu');
+const BoSuuTap = require('../models/BoSuuTap');
 
-// @desc    Get all products with filters
 const getProducts = async (req, res) => {
-  const {
-    page = 1,
-    limit = 12,
-    category,
-    brand,
-    minPrice,
-    maxPrice,
-    search,
-    sortBy = 'ngayTao',
-    sortOrder = 'desc'
-  } = req.query;
+  try {
+    const {
+      page = 1,
+      limit = 12,
+      category,
+      brand,
+      collection,
+      minPrice,
+      maxPrice,
+      search,
+      sortBy = 'ngayTao',
+      sortOrder = 'desc'
+    } = req.query;
 
-  // Build query
-  const query = { trangThai: true };
+    const query = { trangThai: true };
 
-  // Category filter
-  if (category) {
-    const danhMuc = await DanhMuc.findOne({ tenDanhMuc: category });
-    if (danhMuc) {
-      query.danhMucId = danhMuc._id;
-    }
-  }
-
-  // Brand filter
-  if (brand) {
-    const thuongHieu = await ThuongHieu.findOne({ tenThuongHieu: brand });
-    if (thuongHieu) {
-      query.thuongHieuId = thuongHieu._id;
-    }
-  }
-
-  // Price filter
-  if (minPrice || maxPrice) {
-    query.gia = {};
-    if (minPrice) query.gia.$gte = parseFloat(minPrice);
-    if (maxPrice) query.gia.$lte = parseFloat(maxPrice);
-  }
-
-  // Search filter
-  if (search) {
-    query.$text = { $search: search };
-  }
-
-  // Sort options
-  const sortOptions = {};
-  if (sortBy === 'gia') {
-    sortOptions.gia = sortOrder === 'asc' ? 1 : -1;
-  } else if (sortBy === 'danhGia') {
-    sortOptions.danhGiaTrungBinh = sortOrder === 'asc' ? 1 : -1;
-  } else if (sortBy === 'tenSanPham') {
-    sortOptions.tenSanPham = sortOrder === 'asc' ? 1 : -1;
-  } else {
-    sortOptions.ngayTao = sortOrder === 'asc' ? 1 : -1;
-  }
-
-  // Execute query with pagination
-  const products = await SanPham.find(query)
-    .populate('danhMucId', 'tenDanhMuc')
-    .populate('thuongHieuId', 'tenThuongHieu')
-    .sort(sortOptions)
-    .limit(limit * 1)
-    .skip((page - 1) * limit);
-
-  const total = await SanPham.countDocuments(query);
-
-  res.status(200).json({
-    success: true,
-    data: {
-      products,
-      pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total,
-        pages: Math.ceil(total / limit)
+    // Category filter
+    if (category) {
+      const danhMuc = await DanhMuc.findOne({ tenDanhMuc: category });
+      if (danhMuc) {
+        query.danhMucId = danhMuc._id;
       }
     }
-  });
+
+    // Brand filter
+    if (brand) {
+      const thuongHieu = await ThuongHieu.findOne({ tenThuongHieu: brand });
+      if (thuongHieu) {
+        query.thuongHieuId = thuongHieu._id;
+      }
+    }
+
+    // Collection filter
+    if (collection) {
+      const boSuuTap = await BoSuuTap.findOne({ tenBoSuuTap: collection });
+      if (boSuuTap) {
+        query.boSuuTapId = boSuuTap._id;
+      }
+    }
+
+    // Price filter
+    if (minPrice || maxPrice) {
+      query.gia = {};
+      if (minPrice) query.gia.$gte = parseFloat(minPrice);
+      if (maxPrice) query.gia.$lte = parseFloat(maxPrice);
+    }
+
+    // Search filter
+    if (search) {
+      query.$text = { $search: search };
+    }
+
+    // Sort options
+    const sortOptions = {};
+    if (sortBy === 'gia') {
+      sortOptions.gia = sortOrder === 'asc' ? 1 : -1;
+    } else if (sortBy === 'danhGia') {
+      sortOptions.danhGiaTrungBinh = sortOrder === 'asc' ? 1 : -1;
+    } else if (sortBy === 'tenSanPham') {
+      sortOptions.tenSanPham = sortOrder === 'asc' ? 1 : -1;
+    } else {
+      sortOptions.ngayTao = sortOrder === 'asc' ? 1 : -1;
+    }
+
+    const products = await SanPham.find(query)
+      .populate('danhMucId', 'tenDanhMuc')
+      .populate('thuongHieuId', 'tenThuongHieu')
+      .populate('boSuuTapId', 'tenBoSuuTap')
+      .sort(sortOptions)
+      .limit(limit * 1)
+      .skip((page - 1) * limit);
+
+    const total = await SanPham.countDocuments(query);
+
+    res.json({
+      success: true,
+      data: {
+        products,
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total,
+          pages: Math.ceil(total / limit)
+        }
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
 };
 
-// @desc    Get product by ID
 const getProductById = async (req, res) => {
-  const product = await SanPham.findById(req.params.id)
-    .populate('danhMucId', 'tenDanhMuc')
-    .populate('thuongHieuId', 'tenThuongHieu');
+  try {
+    const product = await SanPham.findById(req.params.id)
+      .populate('danhMucId', 'tenDanhMuc')
+      .populate('thuongHieuId', 'tenThuongHieu')
+      .populate('boSuuTapId', 'tenBoSuuTap');
 
-  if (!product) {
-    return res.status(404).json({
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: { product }
+    });
+  } catch (error) {
+    res.status(500).json({
       success: false,
-      message: 'Product not found'
+      message: error.message
     });
   }
-
-  res.status(200).json({
-    success: true,
-    data: { product }
-  });
 };
 
-// @desc    Create new product
 const createProduct = async (req, res) => {
-  const {
-    tenSanPham,
-    gia,
-    soLuongTon,
-    danhMucId,
-    thuongHieuId,
-    moTa,
-    hinhAnh
-  } = req.body;
+  try {
+    const {
+      tenSanPham,
+      gia,
+      soLuongTon,
+      danhMucId,
+      thuongHieuId,
+      boSuuTapId,
+      moTa,
+      hinhAnh
+    } = req.body;
 
-  // Check if category and brand exist
-  const danhMuc = await DanhMuc.findById(danhMucId);
-  if (!danhMuc) {
-    return res.status(400).json({
+    // Validate category and brand
+    const [danhMuc, thuongHieu] = await Promise.all([
+      DanhMuc.findById(danhMucId),
+      ThuongHieu.findById(thuongHieuId)
+    ]);
+
+    if (!danhMuc) {
+      return res.status(400).json({
+        success: false,
+        message: 'Category not found'
+      });
+    }
+
+    if (!thuongHieu) {
+      return res.status(400).json({
+        success: false,
+        message: 'Brand not found'
+      });
+    }
+
+    // Validate collection if provided
+    if (boSuuTapId) {
+      const boSuuTap = await BoSuuTap.findById(boSuuTapId);
+      if (!boSuuTap) {
+        return res.status(400).json({
+          success: false,
+          message: 'Collection not found'
+        });
+      }
+    }
+
+    const product = await SanPham.create({
+      tenSanPham,
+      gia,
+      soLuongTon,
+      danhMucId,
+      thuongHieuId,
+      boSuuTapId,
+      moTa,
+      hinhAnh
+    });
+
+    const populatedProduct = await SanPham.findById(product._id)
+      .populate('danhMucId', 'tenDanhMuc')
+      .populate('thuongHieuId', 'tenThuongHieu')
+      .populate('boSuuTapId', 'tenBoSuuTap');
+
+    res.status(201).json({
+      success: true,
+      message: 'Product created successfully',
+      data: { product: populatedProduct }
+    });
+  } catch (error) {
+    res.status(500).json({
       success: false,
-      message: 'Category not found'
+      message: error.message
     });
   }
-
-  const thuongHieu = await ThuongHieu.findById(thuongHieuId);
-  if (!thuongHieu) {
-    return res.status(400).json({
-      success: false,
-      message: 'Brand not found'
-    });
-  }
-
-  const product = await SanPham.create({
-    tenSanPham,
-    gia,
-    soLuongTon,
-    danhMucId,
-    thuongHieuId,
-    moTa,
-    hinhAnh
-  });
-
-  const populatedProduct = await SanPham.findById(product._id)
-    .populate('danhMucId', 'tenDanhMuc')
-    .populate('thuongHieuId', 'tenThuongHieu');
-
-  res.status(201).json({
-    success: true,
-    message: 'Product created successfully',
-    data: { product: populatedProduct }
-  });
 };
 
-// @desc    Update product
 const updateProduct = async (req, res) => {
-  const product = await SanPham.findByIdAndUpdate(
-    req.params.id,
-    req.body,
-    { new: true, runValidators: true }
-  ).populate('danhMucId', 'tenDanhMuc')
-   .populate('thuongHieuId', 'tenThuongHieu');
+  try {
+    const product = await SanPham.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    ).populate('danhMucId', 'tenDanhMuc')
+     .populate('thuongHieuId', 'tenThuongHieu')
+     .populate('boSuuTapId', 'tenBoSuuTap');
 
-  if (!product) {
-    return res.status(404).json({
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Product updated successfully',
+      data: { product }
+    });
+  } catch (error) {
+    res.status(500).json({
       success: false,
-      message: 'Product not found'
+      message: error.message
     });
   }
-
-  res.status(200).json({
-    success: true,
-    message: 'Product updated successfully',
-    data: { product }
-  });
 };
 
-// @desc    Delete product
+// Delete product
 const deleteProduct = async (req, res) => {
-  const product = await SanPham.findById(req.params.id);
+  try {
+    const product = await SanPham.findById(req.params.id);
 
-  if (!product) {
-    return res.status(404).json({
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found'
+      });
+    }
+
+    await product.deleteOne();
+
+    res.json({
+      success: true,
+      message: 'Product deleted successfully'
+    });
+  } catch (error) {
+    res.status(500).json({
       success: false,
-      message: 'Product not found'
+      message: error.message
     });
   }
-
-  await product.deleteOne();
-
-  res.status(200).json({
-    success: true,
-    message: 'Product deleted successfully'
-  });
 };
 
-// @desc    Get related products
-const getRelatedProducts = async (req, res) => {
-  const product = await SanPham.findById(req.params.id);
-  
-  if (!product) {
-    return res.status(404).json({
+// Get all collections
+const getProductCollections = async (req, res) => {
+  try {
+    const collections = await BoSuuTap.find({ trangThai: true })
+      .populate('sanPhams', 'tenSanPham gia hinhAnh')
+      .sort({ ngayTao: -1 });
+
+    // Add product count to each collection
+    const collectionsWithCount = collections.map(collection => ({
+      _id: collection._id,
+      tenBoSuuTap: collection.tenBoSuuTap,
+      moTa: collection.moTa,
+      hinhAnh: collection.hinhAnh,
+      trangThai: collection.trangThai,
+      soLuongSanPham: collection.sanPhams ? collection.sanPhams.length : 0,
+      ngayTao: collection.ngayTao,
+      ngayCapNhat: collection.ngayCapNhat
+    }));
+
+    res.json({
+      success: true,
+      data: {
+        collections: collectionsWithCount
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
       success: false,
-      message: 'Product not found'
+      message: error.message
     });
   }
+};
 
-  const relatedProducts = await SanPham.find({
-    _id: { $ne: req.params.id },
-    danhMucId: product.danhMucId,
-    trangThai: true
-  })
-  .populate('danhMucId', 'tenDanhMuc')
-  .populate('thuongHieuId', 'tenThuongHieu')
-  .limit(6);
+const getRelatedProducts = async (req, res) => {
+  try {
+    const product = await SanPham.findById(req.params.id);
+    
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found'
+      });
+    }
 
-  res.status(200).json({
-    success: true,
-    data: { products: relatedProducts }
-  });
+    const relatedProducts = await SanPham.find({
+      _id: { $ne: req.params.id },
+      danhMucId: product.danhMucId,
+      trangThai: true
+    })
+    .populate('danhMucId', 'tenDanhMuc')
+    .populate('thuongHieuId', 'tenThuongHieu')
+    .populate('boSuuTapId', 'tenBoSuuTap')
+    .limit(6);
+
+    res.json({
+      success: true,
+      data: { products: relatedProducts }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
 };
 
 module.exports = {
@@ -226,5 +325,6 @@ module.exports = {
   createProduct,
   updateProduct,
   deleteProduct,
+  getProductCollections,
   getRelatedProducts
 };
