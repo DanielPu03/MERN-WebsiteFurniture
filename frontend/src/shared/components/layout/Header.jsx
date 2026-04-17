@@ -1,14 +1,98 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, User, Search, Menu, X, Heart } from 'lucide-react';
+import { ShoppingCart, User, Search, Menu, X, Heart, Check, ChevronDown } from 'lucide-react';
 import { useAuth, useCart } from '../../hooks/useRedux';
 
 const Header = () => {
-  const { user, isAuthenticated, logout } = useAuth();
-  const { cart } = useCart();
+  const { user, isAuthenticated, dispatch, logout } = useAuth();
+  const { cart, itemCount } = useCart();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isProductDropdownOpen, setIsProductDropdownOpen] = useState(false);
+  const [categories, setCategories] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showCartSuccess, setShowCartSuccess] = useState(false);
   const navigate = useNavigate();
+  const userMenuRef = useRef(null);
+  const productDropdownRef = useRef(null);
+  const dropdownTimeoutRef = useRef(null);
+
+  // Listen for custom cart success events
+  useEffect(() => {
+    const handleCartSuccess = () => {
+      setShowCartSuccess(true);
+      const timer = setTimeout(() => {
+        setShowCartSuccess(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    };
+
+    // Add event listener
+    window.addEventListener('cartSuccess', handleCartSuccess);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('cartSuccess', handleCartSuccess);
+    };
+  }, []);
+
+  // Load categories from backend
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/categories');
+        const data = await response.json();
+        if (data.success) {
+          const categoriesList = data.data.categories || data.data || [];
+          setCategories(categoriesList);
+        }
+      } catch (error) {
+        console.error('Error loading categories:', error);
+      }
+    };
+
+    loadCategories();
+  }, []);
+
+  // Click outside handler
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setIsUserMenuOpen(false);
+      }
+      if (productDropdownRef.current && !productDropdownRef.current.contains(event.target)) {
+        setIsProductDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (dropdownTimeoutRef.current) {
+        clearTimeout(dropdownTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handleDropdownMouseEnter = () => {
+    if (dropdownTimeoutRef.current) {
+      clearTimeout(dropdownTimeoutRef.current);
+      dropdownTimeoutRef.current = null;
+    }
+    setIsProductDropdownOpen(true);
+  };
+
+  const handleDropdownMouseLeave = () => {
+    dropdownTimeoutRef.current = setTimeout(() => {
+      setIsProductDropdownOpen(false);
+    }, 300);
+  };
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -20,12 +104,15 @@ const Header = () => {
   };
 
   const handleLogout = () => {
-    logout();
+    dispatch(logout());
     navigate('/');
     setIsMenuOpen(false);
+    setIsUserMenuOpen(false);
+    // Force page reload to confirm logout
+    window.location.reload();
   };
 
-  const cartItemsCount = cart?.items?.reduce((total, item) => total + item.quantity, 0) || 0;
+  const cartItemsCount = itemCount || 0;
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
@@ -52,12 +139,36 @@ const Header = () => {
             >
               Trang chủ
             </Link>
-            <Link
-              to="/products"
-              className="text-gray-700 hover:text-purple-600 font-medium transition-colors"
+            <div
+              className="relative"
+              ref={productDropdownRef}
+              onMouseEnter={handleDropdownMouseEnter}
+              onMouseLeave={handleDropdownMouseLeave}
             >
-              Sản phẩm
-            </Link>
+              <Link
+                to="/products"
+                className="flex items-center text-gray-700 hover:text-purple-600 font-medium transition-colors"
+              >
+                Sản phẩm
+                <ChevronDown className="ml-1 h-4 w-4" />
+              </Link>
+              {isProductDropdownOpen && categories.length > 0 && (
+                <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                  <div className="py-2">
+                    {categories.map((category) => (
+                      <Link
+                        key={category._id}
+                        to={`/products?category=${encodeURIComponent(category.tenDanhMuc)}`}
+                        className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-purple-600 transition-colors"
+                        onClick={() => setIsProductDropdownOpen(false)}
+                      >
+                        {category.tenDanhMuc}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
             <Link
               to="/collections"
               className="text-gray-700 hover:text-purple-600 font-medium transition-colors"
@@ -101,24 +212,37 @@ const Header = () => {
             >
               <Heart className="h-6 w-6" />
             </Link>
-            <Link
-              to="/cart"
-              className="relative text-gray-700 hover:text-purple-600 transition-colors"
-            >
-              <ShoppingCart className="h-6 w-6" />
-              {cartItemsCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  {cartItemsCount}
-                </span>
+            <div className="relative">
+              <Link
+                to="/cart"
+                className="relative text-gray-700 hover:text-purple-600 transition-colors"
+              >
+                <ShoppingCart className="h-6 w-6" />
+                {cartItemsCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {cartItemsCount}
+                  </span>
+                )}
+              </Link>
+              
+              {/* Cart Success Notification */}
+              {showCartSuccess && (
+                <div className="absolute -top-12 right-0 bg-green-500 text-white px-3 py-2 rounded-lg shadow-lg flex items-center space-x-2 animate-fade-in-up">
+                  <Check className="h-4 w-4" />
+                  <span className="text-sm font-medium">Thêm vào giò hàng thành công!</span>
+                </div>
               )}
-            </Link>
+            </div>
             {isAuthenticated ? (
-              <div className="relative group">
-                <button className="flex items-center space-x-2 text-gray-700 hover:text-purple-600 transition-colors">
+              <div className="relative" ref={userMenuRef}>
+                <button 
+                  className="flex items-center space-x-2 text-gray-700 hover:text-purple-600 transition-colors"
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                >
                   <User className="h-6 w-6" />
                   <span className="text-sm font-medium">{user?.hoTen || 'User'}</span>
                 </button>
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                <div className={`absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 transition-all duration-200 z-50 ${isUserMenuOpen ? 'block' : 'hidden'}`}>
                   <Link
                     to="/profile"
                     className="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors"
@@ -131,8 +255,20 @@ const Header = () => {
                   >
                     Đơn hàng
                   </Link>
+                  {user?.role === 1 && (
+                    <Link
+                      to="/admin"
+                      className="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors border-t border-gray-100"
+                    >
+                      Quản trị viên
+                    </Link>
+                  )}
                   <button
-                    onClick={handleLogout}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleLogout();
+                    }}
                     className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors"
                   >
                     Đăng xuất
@@ -217,25 +353,50 @@ const Header = () => {
                   >
                     <Heart className="h-6 w-6" />
                   </Link>
-                  <Link
-                    to="/cart"
-                    onClick={() => setIsMenuOpen(false)}
-                    className="relative text-gray-700 hover:text-purple-600 transition-colors"
-                  >
-                    <ShoppingCart className="h-6 w-6" />
-                    {cartItemsCount > 0 && (
-                      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                        {cartItemsCount}
-                      </span>
-                    )}
-                  </Link>
-                  {isAuthenticated ? (
-                    <button
-                      onClick={handleLogout}
-                      className="text-gray-700 hover:text-purple-600 transition-colors"
+                  <div className="relative">
+                    <Link
+                      to="/cart"
+                      onClick={() => setIsMenuOpen(false)}
+                      className="relative text-gray-700 hover:text-purple-600 transition-colors"
                     >
-                      <User className="h-6 w-6" />
-                    </button>
+                      <ShoppingCart className="h-6 w-6" />
+                      {cartItemsCount > 0 && (
+                        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                          {cartItemsCount}
+                        </span>
+                      )}
+                    </Link>
+                    
+                    {/* Cart Success Notification - Mobile */}
+                    {showCartSuccess && (
+                      <div className="absolute -top-12 right-0 bg-green-500 text-white px-3 py-2 rounded-lg shadow-lg flex items-center space-x-2 animate-fade-in-up">
+                        <Check className="h-4 w-4" />
+                        <span className="text-sm font-medium">Thêm vào giò hàng thành công!</span>
+                      </div>
+                    )}
+                  </div>
+                  {isAuthenticated ? (
+                    <div className="space-y-2">
+                      {user?.role === 1 && (
+                        <Link
+                          to="/admin"
+                          onClick={() => setIsMenuOpen(false)}
+                          className="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors"
+                        >
+                          Quản trị viên
+                        </Link>
+                      )}
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleLogout();
+                        }}
+                        className="text-gray-700 hover:text-purple-600 transition-colors"
+                      >
+                        <User className="h-6 w-6" />
+                      </button>
+                    </div>
                   ) : (
                     <Link
                       to="/login"

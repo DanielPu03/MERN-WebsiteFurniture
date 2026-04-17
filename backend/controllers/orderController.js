@@ -4,7 +4,7 @@ const SanPham = require('../models/SanPham');
 
 // @desc    Get user's orders
 const getOrders = async (req, res) => {
-  const { page = 1, limit = 10, status } = req.query;
+  const { page = 1, limit = 5, status } = req.query;
 
   // Build query
   const query = { nguoiDungId: req.user._id };
@@ -13,6 +13,7 @@ const getOrders = async (req, res) => {
   }
 
   const orders = await DonHang.find(query)
+    .populate('nguoiDungId', 'hoTen email soDienThoai')
     .populate('chiTietDonHang.sanPhamId', 'tenSanPham hinhAnh')
     .sort({ ngayTao: -1 })
     .limit(limit * 1)
@@ -37,6 +38,7 @@ const getOrders = async (req, res) => {
 // @desc    Get order by ID
 const getOrderById = async (req, res) => {
   const order = await DonHang.findById(req.params.id)
+    .populate('nguoiDungId', 'hoTen email soDienThoai')
     .populate('chiTietDonHang.sanPhamId', 'tenSanPham hinhAnh moTa');
 
   if (!order) {
@@ -60,13 +62,12 @@ const getOrderById = async (req, res) => {
   });
 };
 
-// @desc    Create new order
+// @desc    Create new order (COD)
 const createOrder = async (req, res) => {
   const {
     chiTietDonHang,
     diaChiGiaoHang,
-    phiVanChuyen,
-    thanhToan
+    phiVanChuyen = 0
   } = req.body;
 
   // Get user's cart
@@ -103,8 +104,7 @@ const createOrder = async (req, res) => {
       sanPhamId: item.sanPhamId._id,
       soLuong: item.soLuong,
       gia: item.gia
-    })),
-    thanhToan
+    }))
   });
 
   // Update product stock
@@ -164,7 +164,7 @@ const cancelOrder = async (req, res) => {
   }
 
   // Update order status
-  order.tinhTrang = 3; // Cancelled
+  order.tinhTrang = 4; // Cancelled
   await order.save();
 
   res.status(200).json({
@@ -220,8 +220,8 @@ const getAllOrders = async (req, res) => {
   }
 
   const orders = await DonHang.find(query)
-    .populate('nguoiDungId', 'hoTen email')
-    .populate('chiTietDonHang.sanPhamId', 'tenSanPham')
+    .populate('nguoiDungId', 'hoTen email soDienThoai')
+    .populate('chiTietDonHang.sanPhamId', 'tenSanPham hinhAnh')
     .sort({ ngayTao: -1 })
     .limit(limit * 1)
     .skip((page - 1) * limit);

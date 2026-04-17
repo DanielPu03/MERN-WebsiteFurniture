@@ -19,9 +19,9 @@ export const addToCart = createAsyncThunk(
   async ({ productId, quantity }, { rejectWithValue }) => {
     try {
       const response = await cartAPI.addToCart(productId, quantity);
-      return response.data;
+      return response;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to add to cart');
+      return rejectWithValue(error.response?.data?.message || 'Failed to add item to cart');
     }
   }
 );
@@ -118,8 +118,25 @@ const cartSlice = createSlice({
       })
       .addCase(getCart.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.cart = action.payload.cart;
-        state.items = action.payload.cart.danhSachSanPham || [];
+        // Backend returns: { success: true, data: { cart: populatedCart } }
+        const cartData = action.payload.data?.cart || action.payload.cart;
+        state.cart = cartData;
+        
+        // Transform populated data to expected frontend structure
+        if (cartData?.danhSachSanPham) {
+          state.items = cartData.danhSachSanPham.map(item => ({
+            sanPhamId: item.sanPhamId._id, // Extract ID from populated object
+            tenSanPham: item.sanPhamId.tenSanPham,
+            gia: item.gia, // Use price stored in cart
+            hinhAnh: item.sanPhamId.hinhAnh,
+            soLuong: item.soLuong,
+            soLuongTon: item.sanPhamId.soLuongTon,
+            trangThai: item.sanPhamId.trangThai
+          }));
+        } else {
+          state.items = [];
+        }
+        
         state.totalAmount = state.items.reduce((total, item) => total + (item.gia * item.soLuong), 0);
         state.itemCount = state.items.reduce((count, item) => count + item.soLuong, 0);
         state.error = null;
@@ -135,8 +152,25 @@ const cartSlice = createSlice({
       })
       .addCase(addToCart.fulfilled, (state, action) => {
         state.isUpdating = false;
-        state.cart = action.payload.cart;
-        state.items = action.payload.cart.danhSachSanPham || [];
+        // Backend returns: { success: true, data: { cart: populatedCart } }
+        const cartData = action.payload.data?.cart || action.payload.cart;
+        state.cart = cartData;
+        
+        // Transform populated data to expected frontend structure
+        if (cartData?.danhSachSanPham) {
+          state.items = cartData.danhSachSanPham.map(item => ({
+            sanPhamId: item.sanPhamId._id, // Extract ID from populated object
+            tenSanPham: item.sanPhamId.tenSanPham,
+            gia: item.gia, // Use price stored in cart
+            hinhAnh: item.sanPhamId.hinhAnh,
+            soLuong: item.soLuong,
+            soLuongTon: item.sanPhamId.soLuongTon,
+            trangThai: item.sanPhamId.trangThai
+          }));
+        } else {
+          state.items = [];
+        }
+        
         state.totalAmount = state.items.reduce((total, item) => total + (item.gia * item.soLuong), 0);
         state.itemCount = state.items.reduce((count, item) => count + item.soLuong, 0);
         state.error = null;
@@ -152,8 +186,24 @@ const cartSlice = createSlice({
       })
       .addCase(updateCartItem.fulfilled, (state, action) => {
         state.isUpdating = false;
-        state.cart = action.payload.cart;
-        state.items = action.payload.cart.danhSachSanPham || [];
+        const cartData = action.payload.data?.cart || action.payload.cart;
+        state.cart = cartData;
+        
+        // Transform populated data to expected frontend structure
+        if (cartData?.danhSachSanPham) {
+          state.items = cartData.danhSachSanPham.map(item => ({
+            sanPhamId: item.sanPhamId._id,
+            tenSanPham: item.sanPhamId.tenSanPham,
+            gia: item.gia,
+            hinhAnh: item.sanPhamId.hinhAnh,
+            soLuong: item.soLuong,
+            soLuongTon: item.sanPhamId.soLuongTon,
+            trangThai: item.sanPhamId.trangThai
+          }));
+        } else {
+          state.items = [];
+        }
+        
         state.totalAmount = state.items.reduce((total, item) => total + (item.gia * item.soLuong), 0);
         state.itemCount = state.items.reduce((count, item) => count + item.soLuong, 0);
         state.error = null;
@@ -169,8 +219,24 @@ const cartSlice = createSlice({
       })
       .addCase(removeFromCart.fulfilled, (state, action) => {
         state.isUpdating = false;
-        state.cart = action.payload.cart;
-        state.items = action.payload.cart.danhSachSanPham || [];
+        const cartData = action.payload.data?.cart || action.payload.cart;
+        state.cart = cartData;
+        
+        // Transform populated data to expected frontend structure
+        if (cartData?.danhSachSanPham) {
+          state.items = cartData.danhSachSanPham.map(item => ({
+            sanPhamId: item.sanPhamId._id,
+            tenSanPham: item.sanPhamId.tenSanPham,
+            gia: item.gia,
+            hinhAnh: item.sanPhamId.hinhAnh,
+            soLuong: item.soLuong,
+            soLuongTon: item.sanPhamId.soLuongTon,
+            trangThai: item.sanPhamId.trangThai
+          }));
+        } else {
+          state.items = [];
+        }
+        
         state.totalAmount = state.items.reduce((total, item) => total + (item.gia * item.soLuong), 0);
         state.itemCount = state.items.reduce((count, item) => count + item.soLuong, 0);
         state.error = null;

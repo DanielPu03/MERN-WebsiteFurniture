@@ -11,11 +11,17 @@ const cartAPI = {
 
   // Add product to cart
   addToCart: async (productId, quantity) => {
-    const response = await axiosClient.post(API_ENDPOINTS.CART.ADD, {
-      sanPhamId: productId,
-      soLuong: quantity,
-    });
-    return response.data;
+    try {
+      
+      const response = await axiosClient.post(API_ENDPOINTS.CART.ADD, {
+        sanPhamId: productId,
+        soLuong: quantity,
+      });
+      
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   },
 
   // Update cart item quantity
@@ -29,9 +35,14 @@ const cartAPI = {
 
   // Remove item from cart
   removeFromCart: async (productId) => {
-    const url = API_ENDPOINTS.CART.REPLACE(':id', productId);
-    const response = await axiosClient.delete(url);
-    return response.data;
+    try {
+      // Replace :id placeholder with actual productId using string replace
+      const removeUrl = API_ENDPOINTS.CART.REMOVE.replace(':id', productId);
+      const response = await axiosClient.delete(removeUrl);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   },
 
   // Clear entire cart

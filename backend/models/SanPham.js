@@ -78,13 +78,13 @@ const sanPhamSchema = new mongoose.Schema({
   },
   thuongHieuId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'ThuongHieu',
-    required: true
+    ref: 'ThuongHieu'
   },
-  boSuuTapId: {
+  boSuuTapIds: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'BoSuuTap'
-  },
+    ref: 'BoSuuTap',
+    default: []
+  }],
   moTa: {
     type: String,
     trim: true,
@@ -105,6 +105,10 @@ const sanPhamSchema = new mongoose.Schema({
   trangThai: {
     type: Boolean,
     default: true
+  },
+  noiBat: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: { createdAt: 'ngayTao', updatedAt: 'ngayCapNhat' }

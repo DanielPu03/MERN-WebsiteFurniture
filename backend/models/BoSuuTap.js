@@ -1,5 +1,16 @@
 const mongoose = require('mongoose');
 
+const hinhAnhBoSuuTapSchema = new mongoose.Schema({
+  url: {
+    type: String,
+    required: true
+  },
+  laAnhChinh: {
+    type: Boolean,
+    default: false
+  }
+}, { _id: false });
+
 const boSuuTapSchema = new mongoose.Schema({
   tenBoSuuTap: {
     type: String,
@@ -12,10 +23,7 @@ const boSuuTapSchema = new mongoose.Schema({
     required: [false],
     maxlength: [500]
   },
-  hinhAnh: {
-    type: String,
-    required: [true]
-  },
+  hinhAnh: [hinhAnhBoSuuTapSchema],
   trangThai: {
     type: Boolean,
     default: true

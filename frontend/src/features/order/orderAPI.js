@@ -4,8 +4,8 @@ import { API_ENDPOINTS } from '../../shared/constants';
 // Order API functions
 const orderAPI = {
   // Get all user orders
-  getOrders: async () => {
-    const response = await axiosClient.get(API_ENDPOINTS.ORDERS.GET_ALL);
+  getOrders: async (params = {}) => {
+    const response = await axiosClient.get(API_ENDPOINTS.ORDERS.GET_ALL, { params });
     return response.data;
   },
 

@@ -313,6 +313,57 @@ const removeProductFromCollection = async (req, res) => {
   }
 };
 
+// Upload collection images
+const uploadCollectionImages = async (req, res) => {
+  try {
+    const { collectionId } = req.params;
+    const collection = await BoSuuTap.findById(collectionId);
+    
+    if (!collection) {
+      return res.status(404).json({
+        success: false,
+        message: 'Collection not found'
+      });
+    }
+
+    // Handle multiple image uploads
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'No images uploaded'
+      });
+    }
+
+    // Process uploaded images
+    const newImages = req.files.map((file, index) => ({
+      url: `/uploads/collections/${file.filename}`,
+      laAnhChinh: index === 0 // First image is main
+    }));
+
+    // Add new images to existing ones
+    const existingImages = collection.hinhAnh || [];
+    const updatedImages = [...existingImages, ...newImages];
+
+    // Update collection with new images
+    const updatedCollection = await BoSuuTap.findByIdAndUpdate(
+      collectionId,
+      { hinhAnh: updatedImages },
+      { new: true }
+    ).populate('sanPhams', 'tenSanPham gia hinhAnh');
+
+    res.json({
+      success: true,
+      message: 'Images uploaded successfully',
+      data: { collection: updatedCollection }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
 module.exports = {
   getCollections,
   getCollectionById,
@@ -320,5 +371,6 @@ module.exports = {
   updateCollection,
   deleteCollection,
   addProductToCollection,
-  removeProductFromCollection
+  removeProductFromCollection,
+  uploadCollectionImages
 };

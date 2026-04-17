@@ -6,7 +6,11 @@ const {
   createProduct,
   updateProduct,
   deleteProduct,
-  getProductCollections
+  getProductCollections,
+  uploadProductImages,
+  deleteProductImage,
+  setMainProductImage,
+  upload
 } = require('../controllers/productController');
 
 const router = express.Router();
@@ -20,5 +24,10 @@ router.get('/:id', getProductById);
 router.post('/', protect, adminOnly, createProduct);
 router.put('/:id', protect, adminOnly, updateProduct);
 router.delete('/:id', protect, adminOnly, deleteProduct);
+
+// Image management routes
+router.post('/:id/images', protect, adminOnly, upload.array('images', 10), uploadProductImages);
+router.delete('/:id/images/:imageIndex', protect, adminOnly, deleteProductImage);
+router.put('/:id/images/:imageIndex/main', protect, adminOnly, setMainProductImage);
 
 module.exports = router;

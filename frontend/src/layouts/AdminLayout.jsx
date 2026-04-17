@@ -12,7 +12,9 @@ import {
   BarChart3,
   Tags,
   Star,
-  Heart
+  Heart,
+  Building2,
+  Layers
 } from 'lucide-react';
 import { useAuth } from '../shared/hooks/useRedux';
 
@@ -36,6 +38,16 @@ const AdminLayout = () => {
       name: 'Danh mục',
       href: '/admin/categories',
       icon: Tags,
+    },
+    {
+      name: 'Thương hiệu',
+      href: '/admin/brands',
+      icon: Building2,
+    },
+    {
+      name: 'Bộ sưu tập',
+      href: '/admin/collections',
+      icon: Layers,
     },
     {
       name: 'Đơn hàng',

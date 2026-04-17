@@ -4,7 +4,7 @@ export const useHome = () => {
   const { products, isLoading, error, getProducts, dispatch } = useProduct();
 
   const loadFeaturedProducts = (limit = 8) => {
-    return dispatch(getProducts({ limit }));
+    return dispatch(getProducts({ limit, featured: 'true' }));
   };
 
   return {

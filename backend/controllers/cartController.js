@@ -81,9 +81,15 @@ const addToCart = async (req, res) => {
 
   await cart.save();
 
+  console.log('Cart before populate:', cart);
+  console.log('Cart danhSachSanPham before populate:', cart.danhSachSanPham);
+
   // Populate and return updated cart
   const populatedCart = await GioHang.findById(cart._id)
     .populate('danhSachSanPham.sanPhamId', 'tenSanPham gia hinhAnh soLuongTon trangThai');
+
+  console.log('Cart after populate:', populatedCart);
+  console.log('Cart danhSachSanPham after populate:', populatedCart.danhSachSanPham);
 
   res.status(200).json({
     success: true,

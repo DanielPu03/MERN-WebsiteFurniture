@@ -899,6 +899,56 @@
             
             await apiCall('/collections/' + collectionId, 'PUT', updateData);
         }
+
+        // Test image management APIs
+        async function testUploadProductImages() {
+            const productId = prompt('Nhập Product ID để upload images:');
+            if (!productId) return;
+            
+            // Create test files
+            const testFiles = [
+                new File(['content'], 'test1.jpg', { type: 'image/jpeg' }),
+                new File(['content'], 'test2.png', { type: 'image/png' })
+            ];
+            
+            const formData = new FormData();
+            testFiles.forEach((file, index) => {
+                formData.append('images', file);
+            });
+            
+            try {
+                const response = await apiCall('/products/' + productId + '/images', 'POST', formData);
+                alert('Upload thành công: ' + JSON.stringify(response, null, 2));
+            } catch (error) {
+                alert('Upload thất bại: ' + error.message);
+            }
+        }
+
+        async function testDeleteProductImage() {
+            const productId = prompt('Nhập Product ID:');
+            const imageIndex = prompt('Nhập Image Index để xóa:');
+            if (!productId || !imageIndex) return;
+            
+            try {
+                const response = await apiCall('/products/' + productId + '/images/' + imageIndex, 'DELETE');
+                alert('Xóa thành công: ' + JSON.stringify(response, null, 2));
+            } catch (error) {
+                alert('Xóa thất bại: ' + error.message);
+            }
+        }
+
+        async function testSetMainProductImage() {
+            const productId = prompt('Nhập Product ID:');
+            const imageIndex = prompt('Nhập Image Index để set làm ảnh chính:');
+            if (!productId || !imageIndex) return;
+            
+            try {
+                const response = await apiCall('/products/' + productId + '/images/' + imageIndex + '/main', 'PUT');
+                alert('Set ảnh chính thành công: ' + JSON.stringify(response, null, 2));
+            } catch (error) {
+                alert('Set ảnh chính thất bại: ' + error.message);
+            }
+        }
         
         // Initialize page
         window.onload = function() {
@@ -906,5 +956,17 @@
             loadCategoriesAndBrands();
         };
     </script>
-</body>
+<div style="margin: 20px;">
+            <h3>Test Image Management APIs</h3>
+            <button onclick="testUploadProductImages()" style="margin: 5px; padding: 10px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                Test Upload Images
+            </button>
+            <button onclick="testDeleteProductImage()" style="margin: 5px; padding: 10px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                Test Delete Image
+            </button>
+            <button onclick="testSetMainProductImage()" style="margin: 5px; padding: 10px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                Test Set Main Image
+            </button>
+        </div>
+    </body>
 </html>

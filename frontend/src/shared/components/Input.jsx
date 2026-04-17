@@ -13,7 +13,8 @@ const Input = ({
   required = false,
   className = '',
   icon = null,
-  ...props
+  startIcon = null, // Add startIcon prop
+  ...restProps
 }) => {
   return (
     <div className="w-full">
@@ -24,9 +25,9 @@ const Input = ({
         </label>
       )}
       <div className="relative">
-        {icon && (
+        {(icon || startIcon) && (
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            {icon}
+            {icon || startIcon}
           </div>
         )}
         <input
@@ -43,11 +44,11 @@ const Input = ({
             block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400
             focus:outline-none focus:ring-blue-500 focus:border-blue-500
             disabled:bg-gray-100 disabled:text-gray-500
-            ${icon ? 'pl-10' : ''}
+            ${icon || startIcon ? 'pl-10' : ''}
             ${error ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'}
             ${className}
           `}
-          {...props}
+          {...restProps}
         />
       </div>
       {error && (

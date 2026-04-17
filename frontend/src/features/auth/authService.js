@@ -47,10 +47,10 @@ export const validateRegisterForm = (formData) => {
   }
 
   // Xác nhận mật khẩu
-  if (!formData.xacNhanMatKhau?.trim()) {
-    errors.xacNhanMatKhau = 'Xác nhận mật khẩu là bắt buộc';
-  } else if (formData.matKhau !== formData.xacNhanMatKhau) {
-    errors.xacNhanMatKhau = 'Mật khẩu xác nhận không khớp';
+  if (!formData.confirmMatKhau?.trim()) {
+    errors.confirmMatKhau = 'Xác nhận mật khẩu là bắt buộc';
+  } else if (formData.matKhau !== formData.confirmMatKhau) {
+    errors.confirmMatKhau = 'Mật khẩu xác nhận không khớp';
   }
 
   // Số điện thoại

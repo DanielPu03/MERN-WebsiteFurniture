@@ -4,9 +4,9 @@ import orderAPI from './orderAPI';
 // Async thunks
 export const getOrders = createAsyncThunk(
   'order/getOrders',
-  async (_, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
-      const response = await orderAPI.getOrders();
+      const response = await orderAPI.getOrders(params);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to get orders');
@@ -54,6 +54,12 @@ export const cancelOrder = createAsyncThunk(
 const initialState = {
   orders: [],
   currentOrder: null,
+  pagination: {
+    page: 1,
+    limit: 5,
+    total: 0,
+    totalPages: 0,
+  },
   isLoading: false,
   error: null,
 };
@@ -79,7 +85,14 @@ const orderSlice = createSlice({
       })
       .addCase(getOrders.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.orders = action.payload.orders;
+        state.orders = action.payload.orders || action.payload.data?.orders || [];
+        const paginationData = action.payload.pagination || action.payload.data?.pagination || {};
+        state.pagination = {
+          page: paginationData.page || 1,
+          limit: paginationData.limit || 5,
+          total: paginationData.total || 0,
+          totalPages: paginationData.pages || 0,
+        };
         state.error = null;
       })
       .addCase(getOrders.rejected, (state, action) => {
@@ -93,7 +106,7 @@ const orderSlice = createSlice({
       })
       .addCase(getOrderById.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.currentOrder = action.payload.order;
+        state.currentOrder = action.payload.data?.order || action.payload.order;
         state.error = null;
       })
       .addCase(getOrderById.rejected, (state, action) => {
@@ -107,8 +120,11 @@ const orderSlice = createSlice({
       })
       .addCase(createOrder.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.orders.unshift(action.payload.order);
-        state.currentOrder = action.payload.order;
+        const order = action.payload.data?.order || action.payload.order;
+        if (order) {
+          state.orders.unshift(order);
+          state.currentOrder = order;
+        }
         state.error = null;
       })
       .addCase(createOrder.rejected, (state, action) => {
@@ -122,12 +138,15 @@ const orderSlice = createSlice({
       })
       .addCase(cancelOrder.fulfilled, (state, action) => {
         state.isLoading = false;
-        const index = state.orders.findIndex(order => order._id === action.payload.order._id);
-        if (index !== -1) {
-          state.orders[index] = action.payload.order;
-        }
-        if (state.currentOrder?._id === action.payload.order._id) {
-          state.currentOrder = action.payload.order;
+        const order = action.payload.data?.order || action.payload.order;
+        if (order) {
+          const index = state.orders.findIndex(o => o._id === order._id);
+          if (index !== -1) {
+            state.orders[index] = order;
+          }
+          if (state.currentOrder?._id === order._id) {
+            state.currentOrder = order;
+          }
         }
         state.error = null;
       })
