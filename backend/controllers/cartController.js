@@ -21,33 +21,34 @@ const getCart = async (req, res) => {
 
 // @desc    Add item to cart
 const addToCart = async (req, res) => {
-  const { sanPhamId, soLuong } = req.body;
+  try {
+    const { sanPhamId, soLuong } = req.body;
 
-  // Validate product
-  const product = await SanPham.findById(sanPhamId);
-  if (!product) {
-    return res.status(404).json({
-      success: false,
-      message: 'Product not found'
-    });
-  }
+    // Validate product
+    const product = await SanPham.findById(sanPhamId);
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found'
+      });
+    }
 
-  if (!product.trangThai) {
-    return res.status(400).json({
-      success: false,
-      message: 'Product is not available'
-    });
-  }
+    if (!product.trangThai) {
+      return res.status(400).json({
+        success: false,
+        message: 'Product is not available'
+      });
+    }
 
-  if (product.soLuongTon < soLuong) {
-    return res.status(400).json({
-      success: false,
-      message: 'Insufficient stock'
-    });
-  }
+    if (product.soLuongTon < soLuong) {
+      return res.status(400).json({
+        success: false,
+        message: 'Insufficient stock'
+      });
+    }
 
-  // Get or create cart
-  let cart = await GioHang.findOne({ nguoiDungId: req.user._id });
+    // Get or create cart
+    let cart = await GioHang.findOne({ nguoiDungId: req.user._id });
   if (!cart) {
     cart = await GioHang.create({
       nguoiDungId: req.user._id,
@@ -81,21 +82,22 @@ const addToCart = async (req, res) => {
 
   await cart.save();
 
-  console.log('Cart before populate:', cart);
-  console.log('Cart danhSachSanPham before populate:', cart.danhSachSanPham);
-
   // Populate and return updated cart
   const populatedCart = await GioHang.findById(cart._id)
     .populate('danhSachSanPham.sanPhamId', 'tenSanPham gia hinhAnh soLuongTon trangThai');
-
-  console.log('Cart after populate:', populatedCart);
-  console.log('Cart danhSachSanPham after populate:', populatedCart.danhSachSanPham);
 
   res.status(200).json({
     success: true,
     message: 'Item added to cart successfully',
     data: { cart: populatedCart }
   });
+  } catch (error) {
+    console.error('Error in addToCart:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Error adding item to cart'
+    });
+  }
 };
 
 //    Update cart item quantity

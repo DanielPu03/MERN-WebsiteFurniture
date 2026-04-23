@@ -17,6 +17,7 @@ const orderRoutes = require('./routes/orders');
 const wishlistRoutes = require('./routes/wishlist');
 const adminRoutes = require('./routes/admin');
 const collectionRoutes = require('./routes/collections');
+const addressRoutes = require('./routes/addresses');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -63,6 +64,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/collections', collectionRoutes);
+app.use('/api/addresses', addressRoutes);
 
 // Root route - API documentation
 app.get('/', (req, res) => {

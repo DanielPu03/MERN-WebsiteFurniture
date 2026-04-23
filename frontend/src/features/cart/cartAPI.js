@@ -12,12 +12,10 @@ const cartAPI = {
   // Add product to cart
   addToCart: async (productId, quantity) => {
     try {
-      
       const response = await axiosClient.post(API_ENDPOINTS.CART.ADD, {
         sanPhamId: productId,
         soLuong: quantity,
       });
-      
       return response.data;
     } catch (error) {
       throw error;

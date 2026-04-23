@@ -3,9 +3,37 @@ import { useNavigate } from 'react-router-dom';
 import { Heart } from 'lucide-react';
 import { formatCurrency } from '../../../shared/utils';
 import Button from '../../../shared/components/Button';
+import { useAppDispatch, useAppSelector } from '../../../shared/hooks/useRedux';
+import { addToWishlist, removeFromWishlist } from '../../wishlist/store/wishlistSlice';
+import toast from 'react-hot-toast';
 
 const ProductCard = ({ product, onAddToCart }) => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { wishlistProductIds } = useAppSelector((state) => state.wishlist);
+  const { user } = useAppSelector((state) => state.auth);
+
+  const isInWishlist = wishlistProductIds.includes(product._id);
+
+  const handleToggleWishlist = async (e) => {
+    e.stopPropagation();
+    if (!user) {
+      toast.error('Vui lòng đăng nhập để thêm vào danh sách yêu thích');
+      return;
+    }
+
+    try {
+      if (isInWishlist) {
+        await dispatch(removeFromWishlist(product._id)).unwrap();
+        toast.success('Đã xóa khỏi danh sách yêu thích');
+      } else {
+        await dispatch(addToWishlist(product._id)).unwrap();
+        toast.success('Đã thêm vào danh sách yêu thích');
+      }
+    } catch (error) {
+      toast.error('Có lỗi xảy ra');
+    }
+  };
 
   const getImageUrl = () => {
     if (product.hinhAnh && product.hinhAnh.length > 0) {
@@ -65,8 +93,13 @@ const ProductCard = ({ product, onAddToCart }) => {
           </div>
         )}
 
-        <button className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors">
-          <Heart className="w-4 h-4 text-gray-600 hover:text-red-500" />
+        <button
+          onClick={handleToggleWishlist}
+          className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors"
+        >
+          <Heart
+            className={`w-4 h-4 ${isInWishlist ? 'text-red-500 fill-current' : 'text-gray-600 hover:text-red-500'}`}
+          />
         </button>
       </div>
 

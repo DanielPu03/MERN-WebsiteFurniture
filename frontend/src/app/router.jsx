@@ -17,6 +17,7 @@ import CartPage from '../features/cart/pages/CartPage';
 import CheckoutPage from '../features/order/pages/CheckoutPage';
 import OrderPage from '../features/order/pages/OrderPage';
 import ProfilePage from '../features/auth/pages/ProfilePage';
+import WishlistPage from '../features/wishlist/pages/WishlistPage';
 import AdminDashboard from '../features/admin/pages/AdminDashboard';
 import ProductManagement from '../features/admin/pages/ProductManagement';
 import CategoryManagement from '../features/admin/pages/CategoryManagement';
@@ -55,9 +56,13 @@ const Router = () => {
         <Route path="login" element={<LoginPage />} />
         <Route path="register" element={<RegisterPage />} />
         <Route path="contact" element={<div>Liên hệ Page - Coming Soon</div>} />
-        <Route path="wishlist" element={<div>Wishlist Page - Coming Soon</div>} />
-        
+
         {/* Protected Routes */}
+        <Route path="wishlist" element={
+          <ProtectedRoute>
+            <WishlistPage />
+          </ProtectedRoute>
+        } />
         <Route path="cart" element={
           <ProtectedRoute>
             <CartPage />

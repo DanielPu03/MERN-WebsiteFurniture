@@ -3,6 +3,8 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Search, Grid, List } from 'lucide-react';
 import { useProduct } from '../hooks/useProduct';
 import { useCart } from '../../../shared/hooks/useRedux';
+import { useAppDispatch, useAppSelector } from '../../../shared/hooks/useRedux';
+import { getWishlist } from '../../wishlist/store/wishlistSlice';
 import Input from '../../../shared/components/Input';
 import Loading from '../../../shared/components/Loading';
 import toast from 'react-hot-toast';
@@ -14,14 +16,15 @@ const ProductPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
+  const dispatch = useAppDispatch();
+  const { user } = useAppSelector((state) => state.auth);
   const {
     products,
     pagination,
     filters,
     isLoading,
     getProducts,
-    setFilters,
-    dispatch
+    setFilters
   } = useProduct();
 
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
@@ -29,6 +32,13 @@ const ProductPage = () => {
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '');
   const [selectedSort, setSelectedSort] = useState(`${searchParams.get('sortBy') || 'createdAt'}-${searchParams.get('sortOrder') || 'desc'}`);
+
+  // Load wishlist when user is logged in
+  React.useEffect(() => {
+    if (user) {
+      dispatch(getWishlist());
+    }
+  }, [user, dispatch]);
 
   React.useEffect(() => {
     const loadCategories = async () => {

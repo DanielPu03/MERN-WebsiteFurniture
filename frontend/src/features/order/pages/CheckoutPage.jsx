@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingBag, ArrowLeft, CreditCard, Truck, MapPin, User, Phone, Mail, Check } from 'lucide-react';
+import { ShoppingBag, ArrowLeft, CreditCard, Truck, MapPin, User, Phone, Mail, Check, Edit2 } from 'lucide-react';
 import { useCart, useAppDispatch, useAuth } from '../../../shared/hooks/useRedux';
 import { createOrder } from '../orderSlice';
 import { PAYMENT_METHODS } from '../../../shared/constants';
 import toast from 'react-hot-toast';
+import AddressSelectModal from '../components/AddressSelectModal';
 
 const CheckoutPage = () => {
   const { items, totalAmount, itemCount, isLoading: cartLoading, clearCart, getCart } = useCart();
@@ -12,6 +13,8 @@ const CheckoutPage = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showAddressModal, setShowAddressModal] = useState(false);
+  const [selectedAddress, setSelectedAddress] = useState(null);
   const [formData, setFormData] = useState({
     // Shipping Info
     fullName: '',
@@ -54,11 +57,57 @@ const CheckoutPage = () => {
     }
   }, []);
 
+  // Load default address
+  useEffect(() => {
+    const loadDefaultAddress = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('http://localhost:5000/api/addresses', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        const data = await response.json();
+        if (data.success && data.data.addresses.length > 0) {
+          const defaultAddress = data.data.addresses.find(addr => addr.macDinh);
+          if (defaultAddress) {
+            setSelectedAddress(defaultAddress);
+            setFormData(prev => ({
+              ...prev,
+              fullName: defaultAddress.tenNguoiNhan,
+              phone: defaultAddress.soDienThoai,
+              address: defaultAddress.diaChiCuThe,
+              city: defaultAddress.tinhThanh,
+              district: defaultAddress.quanHuyen,
+              ward: defaultAddress.phuongXa
+            }));
+          }
+        }
+      } catch (error) {
+        console.error('Error loading default address:', error);
+      }
+    };
+    loadDefaultAddress();
+  }, []);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
+    }));
+  };
+
+  const handleSelectAddress = (address) => {
+    setSelectedAddress(address);
+    setFormData(prev => ({
+      ...prev,
+      fullName: address.tenNguoiNhan,
+      phone: address.soDienThoai,
+      address: address.diaChiCuThe,
+      city: address.tinhThanh,
+      district: address.quanHuyen,
+      ward: address.phuongXa
     }));
   };
 
@@ -131,6 +180,15 @@ const CheckoutPage = () => {
     setIsSubmitting(true);
 
     try {
+      const addressToUse = selectedAddress || {
+        tenNguoiNhan: formData.fullName,
+        soDienThoai: formData.phone,
+        diaChiCuThe: formData.address,
+        phuongXa: formData.ward,
+        quanHuyen: formData.district,
+        tinhThanh: formData.city
+      };
+
       const orderData = {
         nguoiDungId: user._id,
         chiTietDonHang: items.map(item => ({
@@ -138,9 +196,10 @@ const CheckoutPage = () => {
           soLuong: item.soLuong,
           gia: item.gia
         })),
-        diaChiGiaoHang: `${formData.fullName}, ${formData.phone}, ${formData.email}, ${formData.address}, ${formData.ward}, ${formData.district}, ${formData.city}`,
+        diaChiGiaoHang: `${addressToUse.tenNguoiNhan}, ${addressToUse.soDienThoai}, ${formData.email}, ${addressToUse.diaChiCuThe}, ${addressToUse.phuongXa}, ${addressToUse.quanHuyen}, ${addressToUse.tinhThanh}`,
         ghiChu: formData.notes || '',
         phiVanChuyen: 0,
+        phuongThucThanhToan: formData.paymentMethod,
       };
 
       await dispatch(createOrder(orderData));
@@ -204,10 +263,40 @@ const CheckoutPage = () => {
           <div className="lg:col-span-2 space-y-6">
             {/* Shipping Information */}
             <div className="bg-white rounded-lg shadow-lg p-6">
-              <div className="flex items-center mb-6">
-                <Truck className="w-6 h-6 text-purple-600 mr-3" />
-                <h2 className="text-xl font-bold text-gray-900">Thông tin giao hàng</h2>
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center">
+                  <Truck className="w-6 h-6 text-purple-600 mr-3" />
+                  <h2 className="text-xl font-bold text-gray-900">Thông tin giao hàng</h2>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowAddressModal(true)}
+                  className="flex items-center text-purple-600 hover:text-purple-700 text-sm font-medium"
+                >
+                  <Edit2 className="w-4 h-4 mr-1" />
+                  Thay đổi địa chỉ
+                </button>
               </div>
+
+              {selectedAddress ? (
+                <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-4">
+                  <div className="flex items-start">
+                    <MapPin className="w-5 h-5 text-purple-600 mr-3 mt-0.5" />
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-gray-900">{selectedAddress.tenNguoiNhan}</h4>
+                      <p className="text-gray-600 text-sm">{selectedAddress.soDienThoai}</p>
+                      <p className="text-gray-700 mt-1">
+                        {selectedAddress.diaChiCuThe}, {selectedAddress.phuongXa}, {selectedAddress.quanHuyen}, {selectedAddress.tinhThanh}
+                      </p>
+                      {selectedAddress.macDinh && (
+                        <span className="inline-block mt-2 bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">
+                          Địa chỉ mặc định
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : null}
 
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -608,6 +697,14 @@ const CheckoutPage = () => {
           </div>
         </div>
       </form>
+
+      {/* Address Select Modal */}
+      <AddressSelectModal
+        isOpen={showAddressModal}
+        onClose={() => setShowAddressModal(false)}
+        onSelectAddress={handleSelectAddress}
+        selectedAddressId={selectedAddress?._id}
+      />
     </div>
   );
 };

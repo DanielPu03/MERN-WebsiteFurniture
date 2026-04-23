@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../shared/hooks/useRedux';
-import { User, ShoppingBag, Lock, MapPin } from 'lucide-react';
+import { User, ShoppingBag, Lock, MapPin, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { updateProfile } from '../authSlice';
 import { useAppDispatch } from '../../../shared/hooks/useRedux';
 import authAPI from '../authAPI';
+import AddressSelectModal from '../../order/components/AddressSelectModal';
 
 const ProfilePage = () => {
   const { user } = useAuth();
@@ -14,10 +15,11 @@ const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState('profile');
   const [isEditing, setIsEditing] = useState(false);
   const [errors, setErrors] = useState({});
+  const [showAddressModal, setShowAddressModal] = useState(false);
+  const [addresses, setAddresses] = useState([]);
   const [formData, setFormData] = useState({
     hoTen: user?.hoTen || '',
-    soDienThoai: user?.soDienThoai || '',
-    diaChi: user?.diaChi || ''
+    soDienThoai: user?.soDienThoai || ''
   });
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
@@ -29,10 +31,33 @@ const ProfilePage = () => {
   useEffect(() => {
     setFormData({
       hoTen: user?.hoTen || '',
-      soDienThoai: user?.soDienThoai || '',
-      diaChi: user?.diaChi || ''
+      soDienThoai: user?.soDienThoai || ''
     });
   }, [user]);
+
+  // Load addresses when address tab is active
+  useEffect(() => {
+    if (activeTab === 'address') {
+      loadAddresses();
+    }
+  }, [activeTab]);
+
+  const loadAddresses = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:5000/api/addresses', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      const data = await response.json();
+      if (data.success) {
+        setAddresses(data.data.addresses);
+      }
+    } catch (error) {
+      console.error('Error loading addresses:', error);
+    }
+  };
 
   const tabs = [
     { id: 'profile', label: 'Thông tin cá nhân', icon: User },
@@ -67,24 +92,6 @@ const ProfilePage = () => {
       }
     } catch (error) {
       toast.error('Cập nhật thông tin thất bại!');
-    }
-  };
-
-  const handleSaveAddress = async () => {
-    if (!formData.diaChi.trim()) {
-      toast.error('Địa chỉ không được để trống');
-      return;
-    }
-
-    try {
-      const result = await dispatch(updateProfile({ diaChi: formData.diaChi }));
-      if (updateProfile.fulfilled.match(result)) {
-        toast.success('Lưu địa chỉ thành công!');
-      } else {
-        toast.error(result.payload || 'Lưu địa chỉ thất bại!');
-      }
-    } catch (error) {
-      toast.error('Lưu địa chỉ thất bại!');
     }
   };
 
@@ -181,21 +188,6 @@ const ProfilePage = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Địa chỉ</label>
-            {isEditing ? (
-              <input
-                type="text"
-                value={formData.diaChi}
-                onChange={(e) => setFormData({ ...formData, diaChi: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Nhập địa chỉ của bạn"
-              />
-            ) : (
-              <p className="text-gray-900">{user?.diaChi || 'Chưa có địa chỉ'}</p>
-            )}
-          </div>
-
-          <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Vai trò</label>
             <p className="text-gray-900">
               {user?.role === 1 ? 'Quản trị viên' : 'Người dùng'}
@@ -218,6 +210,7 @@ const ProfilePage = () => {
                   hoTen: user?.hoTen || '',
                   soDienThoai: user?.soDienThoai || ''
                 });
+                setErrors({});
               }}
               className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
             >
@@ -246,32 +239,69 @@ const ProfilePage = () => {
 
   const renderAddressTab = () => (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900">Địa chỉ giao hàng</h2>
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Địa chỉ giao hàng</label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={formData.diaChi}
-                onChange={(e) => setFormData({ ...formData, diaChi: e.target.value })}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Nhập địa chỉ giao hàng của bạn"
-              />
-              <button
-                onClick={handleSaveAddress}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-              >
-                Lưu
-              </button>
-            </div>
-            {formData.diaChi && (
-              <p className="mt-2 text-gray-900">{formData.diaChi}</p>
-            )}
-          </div>
-        </div>
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-gray-900">Địa chỉ giao hàng</h2>
+        <button
+          onClick={() => setShowAddressModal(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+        >
+          <Plus className="w-4 h-4" />
+          Thêm địa chỉ mới
+        </button>
       </div>
+
+      <div className="bg-white rounded-lg shadow p-6">
+        {addresses.length === 0 ? (
+          <div className="text-center py-8">
+            <MapPin className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+            <p className="text-gray-600 mb-4">Bạn chưa có địa chỉ nào</p>
+            <button
+              onClick={() => setShowAddressModal(true)}
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+            >
+              Thêm địa chỉ đầu tiên
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {addresses.map((address) => (
+              <div
+                key={address._id}
+                className={`p-4 border-2 rounded-lg ${
+                  address.macDinh
+                    ? 'border-blue-600 bg-blue-50'
+                    : 'border-gray-200'
+                }`}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    {address.macDinh && (
+                      <span className="inline-block mb-2 bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                        Mặc định
+                      </span>
+                    )}
+                    <h4 className="font-semibold text-gray-900">{address.tenNguoiNhan}</h4>
+                    <p className="text-gray-600 text-sm">{address.soDienThoai}</p>
+                    <p className="text-gray-700 mt-1">
+                      {address.diaChiCuThe}, {address.phuongXa}, {address.quanHuyen}, {address.tinhThanh}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <AddressSelectModal
+        isOpen={showAddressModal}
+        onClose={() => {
+          setShowAddressModal(false);
+          loadAddresses();
+        }}
+        onSelectAddress={() => {}}
+        selectedAddressId={null}
+      />
     </div>
   );
 
