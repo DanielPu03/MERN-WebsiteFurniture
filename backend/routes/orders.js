@@ -12,9 +12,9 @@ const {
 const router = express.Router();
 
 // Protected routes (user orders)
+router.post('/', protect, createOrder);
 router.get('/', protect, getOrders);
 router.get('/:id', protect, getOrderById);
-router.post('/', protect, createOrder);
 router.put('/:id/cancel', protect, cancelOrder);
 
 // Admin only routes

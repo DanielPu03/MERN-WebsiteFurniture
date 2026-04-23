@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingBag, ArrowLeft, CreditCard, Truck, MapPin, User, Phone, Mail, Check } from 'lucide-react';
-import { useCart, useAppDispatch } from '../../../shared/hooks/useRedux';
+import { useCart, useAppDispatch, useAuth } from '../../../shared/hooks/useRedux';
 import { createOrder } from '../orderSlice';
 import { PAYMENT_METHODS } from '../../../shared/constants';
 import toast from 'react-hot-toast';
 
 const CheckoutPage = () => {
   const { items, totalAmount, itemCount, isLoading: cartLoading, clearCart, getCart } = useCart();
+  const { user } = useAuth();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -121,16 +122,24 @@ const CheckoutPage = () => {
       return;
     }
 
+    if (!user || !user._id) {
+      toast.error('Vui lòng đăng nhập để đặt hàng!');
+      navigate('/login');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
       const orderData = {
-        chiTietDonHang: items.map((item) => ({
+        nguoiDungId: user._id,
+        chiTietDonHang: items.map(item => ({
           sanPhamId: item.sanPhamId,
           soLuong: item.soLuong,
-          gia: item.gia,
+          gia: item.gia
         })),
-        diaChiGiaoHang: `${formData.fullName}, ${formData.phone}, ${formData.email}, ${formData.address}, ${formData.ward}, ${formData.district}, ${formData.city}${formData.notes ? '. Ghi chú: ' + formData.notes : ''}`,
+        diaChiGiaoHang: `${formData.fullName}, ${formData.phone}, ${formData.email}, ${formData.address}, ${formData.ward}, ${formData.district}, ${formData.city}`,
+        ghiChu: formData.notes || '',
         phiVanChuyen: 0,
       };
 
@@ -139,7 +148,6 @@ const CheckoutPage = () => {
       navigate('/orders');
     } catch (error) {
       toast.error('Đặt hàng thất bại!');
-      console.error('Order error:', error);
     } finally {
       setIsSubmitting(false);
     }

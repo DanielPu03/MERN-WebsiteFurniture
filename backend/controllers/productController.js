@@ -47,6 +47,8 @@ const getProducts = async (req, res) => {
       featured
     } = req.query;
 
+    console.log('getProducts query params:', { page, limit, category, brand, search, sortBy, sortOrder });
+
     const query = { trangThai: true };
 
     // Featured filter
@@ -56,9 +58,12 @@ const getProducts = async (req, res) => {
 
     // Category filter
     if (category) {
+      console.log('Filtering by category:', category);
       const danhMuc = await DanhMuc.findOne({ tenDanhMuc: category });
+      console.log('Found category:', danhMuc);
       if (danhMuc) {
         query.danhMucId = danhMuc._id;
+        console.log('Added danhMucId to query:', danhMuc._id);
       }
     }
 

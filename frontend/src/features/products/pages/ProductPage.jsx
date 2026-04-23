@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Search, Filter, Grid, List } from 'lucide-react';
+import { Search, Grid, List } from 'lucide-react';
 import { useProduct } from '../hooks/useProduct';
 import { useCart } from '../../../shared/hooks/useRedux';
-import Button from '../../../shared/components/Button';
 import Input from '../../../shared/components/Input';
 import Loading from '../../../shared/components/Loading';
 import toast from 'react-hot-toast';
-import ProductFilters from '../components/ProductFilters';
 import ProductGrid from '../components/ProductGrid';
 import ProductSort from '../components/ProductSort';
 import ProductPagination from '../components/ProductPagination';
@@ -16,20 +14,36 @@ const ProductPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
-  const { 
-    products, 
-    pagination, 
-    filters, 
-    isLoading, 
-    getProducts, 
+  const {
+    products,
+    pagination,
+    filters,
+    isLoading,
+    getProducts,
     setFilters,
-    dispatch 
+    dispatch
   } = useProduct();
 
-    
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
   const [viewMode, setViewMode] = useState('grid');
-  const [showFilters, setShowFilters] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '');
+  const [selectedSort, setSelectedSort] = useState(`${searchParams.get('sortBy') || 'createdAt'}-${searchParams.get('sortOrder') || 'desc'}`);
+
+  React.useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/categories');
+        const data = await response.json();
+        if (data.success) {
+          setCategories(data.data.categories || data.data || []);
+        }
+      } catch (error) {
+        console.error('Error loading categories:', error);
+      }
+    };
+    loadCategories();
+  }, []);
 
   const handleAddToCart = async (product, e) => {
     e.stopPropagation();
@@ -54,17 +68,16 @@ const ProductPage = () => {
       page: parseInt(searchParams.get('page')) || 1,
       limit: parseInt(searchParams.get('limit')) || 12,
       category: searchParams.get('category') || '',
-      brand: searchParams.get('brand') || '',
       search: searchParams.get('search') || '',
       minPrice: searchParams.get('minPrice') || '',
       maxPrice: searchParams.get('maxPrice') || '',
       sortBy: searchParams.get('sortBy') || 'createdAt',
       sortOrder: searchParams.get('sortOrder') || 'desc',
     };
-    
+
     setFilters(currentFilters);
     dispatch(getProducts(currentFilters));
-  }, [searchParams.toString()]);
+  }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -75,7 +88,11 @@ const ProductPage = () => {
   };
 
   const handleFilterChange = (key, value) => {
-    const newFilters = { ...filters, [key]: value, page: 1 };
+    const [sortBy, sortOrder] = selectedSort.split('-');
+    const newFilters = { ...filters, [key]: value, page: 1, sortBy, sortOrder };
+    if (key === 'category') {
+      setSelectedCategory(value);
+    }
     setFilters(newFilters);
     dispatch(getProducts(newFilters));
     updateURL(newFilters);
@@ -83,7 +100,8 @@ const ProductPage = () => {
 
   const handleSortChange = (value) => {
     const [sortBy, sortOrder] = value.split('-');
-    const newFilters = { ...filters, sortBy, sortOrder, page: 1 };
+    const newFilters = { ...filters, sortBy, sortOrder, page: 1, category: selectedCategory };
+    setSelectedSort(value);
     setFilters(newFilters);
     dispatch(getProducts(newFilters));
     updateURL(newFilters);
@@ -128,16 +146,8 @@ const ProductPage = () => {
               startIcon={<Search className="w-5 h-5" />}
             />
           </form>
-          
+
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setShowFilters(!showFilters)}
-              icon={<Filter className="w-4 h-4" />}
-            >
-              Bộ lọc
-            </Button>
-            
             <div className="flex border rounded-lg">
               <button
                 className={`px-3 py-2 ${viewMode === 'grid' ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'}`}
@@ -155,19 +165,27 @@ const ProductPage = () => {
           </div>
         </div>
 
-        {/* Filters Panel */}
-        <ProductFilters
-          showFilters={showFilters}
-          filters={filters}
-          handleFilterChange={handleFilterChange}
-        />
-
-        {/* Sort */}
-        <ProductSort
-          filters={filters}
-          onSortChange={handleSortChange}
-          productCount={products.length}
-        />
+        {/* Sort and Category */}
+        <div className="flex items-center mb-6 gap-4">
+          <select
+            value={selectedCategory}
+            onChange={(e) => handleFilterChange('category', e.target.value)}
+            className="border rounded-lg px-3 py-2 flex-1"
+          >
+            <option value="">Tất cả danh mục</option>
+            {categories.map((category) => (
+              <option key={category._id} value={category.tenDanhMuc}>
+                {category.tenDanhMuc}
+              </option>
+            ))}
+          </select>
+          <ProductSort
+            filters={filters}
+            onSortChange={handleSortChange}
+            productCount={products.length}
+            selectedSort={selectedSort}
+          />
+        </div>
       </div>
 
       {/* Products Grid/List */}

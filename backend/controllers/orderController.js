@@ -64,12 +64,70 @@ const getOrderById = async (req, res) => {
 
 // @desc    Create new order (COD)
 const createOrder = async (req, res) => {
-  const {
-    chiTietDonHang,
-    diaChiGiaoHang,
-    phiVanChuyen = 0
-  } = req.body;
+  try {
+    const {
+      chiTietDonHang,
+      diaChiGiaoHang,
+      phiVanChuyen = 0,
+      ghiChu = '',
+      nguoiDungId
+    } = req.body;
 
+    // If chiTietDonHang is provided (from checkout), use it directly
+    if (chiTietDonHang && chiTietDonHang.length > 0) {
+      // Validate stock for each item
+      for (const item of chiTietDonHang) {
+        const product = await SanPham.findById(item.sanPhamId);
+        if (!product) {
+          return res.status(400).json({
+            success: false,
+            message: `Product not found: ${item.sanPhamId}`
+          });
+        }
+        if (product.soLuongTon < item.soLuong) {
+          return res.status(400).json({
+            success: false,
+            message: `Insufficient stock for ${product.tenSanPham}`
+          });
+        }
+      }
+
+      // Calculate total
+      const tongTien = chiTietDonHang.reduce((total, item) => {
+        return total + (item.gia * item.soLuong);
+      }, 0) + phiVanChuyen;
+
+      // Create order
+      const order = await DonHang.create({
+        nguoiDungId: req.user._id,
+        tongTien,
+        diaChiGiaoHang,
+        phiVanChuyen,
+        ghiChu,
+        chiTietDonHang
+      });
+
+      // Update product stock
+      for (const item of chiTietDonHang) {
+        await SanPham.findByIdAndUpdate(item.sanPhamId, {
+          $inc: { soLuongTon: -item.soLuong }
+        });
+      }
+
+      // Clear user's cart
+      await GioHang.findOneAndUpdate(
+        { nguoiDungId: req.user._id },
+        { danhSachSanPham: [] }
+      );
+
+      res.status(201).json({
+        success: true,
+        data: { order }
+      });
+      return;
+    }
+
+  // Otherwise, use cart (original logic)
   // Get user's cart
   const cart = await GioHang.findOne({ nguoiDungId: req.user._id })
     .populate('danhSachSanPham.sanPhamId', 'tenSanPham gia soLuongTon');
@@ -100,6 +158,7 @@ const createOrder = async (req, res) => {
     tongTien,
     diaChiGiaoHang,
     phiVanChuyen,
+    ghiChu,
     chiTietDonHang: cart.danhSachSanPham.map(item => ({
       sanPhamId: item.sanPhamId._id,
       soLuong: item.soLuong,
@@ -127,6 +186,13 @@ const createOrder = async (req, res) => {
     message: 'Order created successfully',
     data: { order: populatedOrder }
   });
+  } catch (error) {
+    console.error('Error creating order:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to create order'
+    });
+  }
 };
 
 // @desc    Cancel order

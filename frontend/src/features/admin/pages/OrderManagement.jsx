@@ -308,16 +308,14 @@ const OrderManagement = () => {
                   </div>
 
                   {/* Customer Notes */}
-                  {selectedOrder.ghiChu && (
-                    <div className="mb-6">
-                      <h4 className="font-medium text-gray-900 mb-2">Ghi chú</h4>
-                      <div className="bg-yellow-50 p-4 rounded-lg">
-                        <p className="text-sm text-gray-700">
-                          {selectedOrder.ghiChu}
-                        </p>
-                      </div>
+                  <div className="mb-6">
+                    <h4 className="font-medium text-gray-900 mb-2">Ghi chú</h4>
+                    <div className="bg-yellow-50 p-4 rounded-lg">
+                      <p className="text-sm text-gray-700">
+                        {selectedOrder.ghiChu || 'Không có ghi chú'}
+                      </p>
                     </div>
-                  )}
+                  </div>
 
                   {/* Order Items */}
                   <div>

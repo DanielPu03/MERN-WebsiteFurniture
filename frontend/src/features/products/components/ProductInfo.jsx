@@ -59,21 +59,13 @@ const ProductInfo = ({ product }) => {
         )}
       </div>
 
-      {/* Category and Brand */}
+      {/* Category */}
       <div className="border-t pt-6">
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <span className="text-gray-500">Danh mục:</span>
-            <span className="ml-2 text-gray-900 font-medium">
-              {product.danhMucId?.tenDanhMuc || 'N/A'}
-            </span>
-          </div>
-          <div>
-            <span className="text-gray-500">Thương hiệu:</span>
-            <span className="ml-2 text-gray-900 font-medium">
-              {product.thuongHieuId?.tenThuongHieu || 'N/A'}
-            </span>
-          </div>
+        <div className="text-sm">
+          <span className="text-gray-500">Danh mục:</span>
+          <span className="ml-2 text-gray-900 font-medium">
+            {product.danhMucId?.tenDanhMuc || 'N/A'}
+          </span>
         </div>
       </div>
     </div>

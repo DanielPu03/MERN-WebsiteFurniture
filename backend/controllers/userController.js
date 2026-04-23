@@ -55,7 +55,7 @@ const getUserById = async (req, res) => {
 // Update user (admin only)
 const updateUser = async (req, res) => {
   const { hoTen, soDienThoai, role, trangThai } = req.body;
-  
+
   const user = await User.findByIdAndUpdate(
     req.params.id,
     { hoTen, soDienThoai, role, trangThai },

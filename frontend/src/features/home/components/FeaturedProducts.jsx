@@ -2,31 +2,10 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Package } from 'lucide-react';
 import Loading from '../../../shared/components/Loading';
+import Image from '../../../shared/components/Image';
 import { formatCurrency } from '../../../shared/utils';
 
 const ProductCard = ({ product }) => {
-  const getImageUrl = () => {
-    if (!product.hinhAnh) return null;
-
-    const images = [];
-    if (Array.isArray(product.hinhAnh)) {
-      product.hinhAnh.forEach(img => {
-        if (typeof img === 'object' && img.url) {
-          images.push(img.url);
-        } else if (typeof img === 'string' && img.trim().length > 0) {
-          images.push(img);
-        }
-      });
-    } else if (typeof product.hinhAnh === 'string' && product.hinhAnh.trim().length > 0) {
-      images.push(product.hinhAnh);
-    } else if (typeof product.hinhAnh === 'object' && product.hinhAnh.url) {
-      images.push(product.hinhAnh.url);
-    }
-
-    return images.length > 0 ? images[0] : null;
-  };
-
-  const imageUrl = getImageUrl();
 
   const renderStars = (rating) => {
     return Array.from({ length: 5 }, (_, i) => (
@@ -42,61 +21,62 @@ const ProductCard = ({ product }) => {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden group cursor-pointer">
-      <div className="relative aspect-square bg-gradient-to-br from-purple-50 to-pink-50 overflow-hidden">
-        {imageUrl ? (
-          <img
-            src={imageUrl}
+    <Link to={`/product/${product._id}`} className="block">
+      <div className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden group cursor-pointer">
+        <div className="relative aspect-square bg-gradient-to-br from-purple-50 to-pink-50 overflow-hidden">
+          <Image
+            src={product.hinhAnh}
             alt={product.tenSanPham}
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+            fallback={
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100">
+                <Package className="w-16 h-16 text-purple-400" />
+              </div>
+            }
           />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100">
-            <Package className="w-16 h-16 text-purple-400" />
-          </div>
-        )}
-        
-        {product.soLuongTon === 0 && (
-          <div className="absolute top-2 left-2">
-            <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">
-              Hết hàng
-            </span>
-          </div>
-        )}
-        
-        {product.soLuongTon > 0 && product.soLuongTon <= 5 && (
-          <div className="absolute top-2 left-2">
-            <span className="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full">
-              Sắp hết hàng
-            </span>
-          </div>
-        )}
-      </div>
 
-      <div className="p-4">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-purple-600 transition-colors">
-          {product.tenSanPham}
-        </h3>
+          {product.soLuongTon === 0 && (
+            <div className="absolute top-2 left-2">
+              <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">
+                Hết hàng
+              </span>
+            </div>
+          )}
 
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-2xl font-bold text-purple-600">
-            {formatCurrency(product.gia)}
-          </span>
-          {product.danhGiaTrungBinh && (
-            <div className="flex items-center">
-              {renderStars(product.danhGiaTrungBinh)}
+          {product.soLuongTon > 0 && product.soLuongTon <= 5 && (
+            <div className="absolute top-2 left-2">
+              <span className="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full">
+                Sắp hết hàng
+              </span>
             </div>
           )}
         </div>
 
-        <div className="flex items-center justify-between text-sm text-gray-600">
-          <span>Tồn kho: {product.soLuongTon}</span>
-          <span className={product.trangThai ? 'text-green-600' : 'text-red-600'}>
-            {product.trangThai ? 'Đang bán' : 'Ngừng bán'}
-          </span>
+        <div className="p-4">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-purple-600 transition-colors">
+            {product.tenSanPham}
+          </h3>
+
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-2xl font-bold text-purple-600">
+              {formatCurrency(product.gia)}
+            </span>
+            {product.danhGiaTrungBinh && (
+              <div className="flex items-center">
+                {renderStars(product.danhGiaTrungBinh)}
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center justify-between text-sm text-gray-600">
+            <span>Tồn kho: {product.soLuongTon}</span>
+            <span className={product.trangThai ? 'text-green-600' : 'text-red-600'}>
+              {product.trangThai ? 'Đang bán' : 'Ngừng bán'}
+            </span>
+          </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 

@@ -20,7 +20,6 @@ import ProfilePage from '../features/auth/pages/ProfilePage';
 import AdminDashboard from '../features/admin/pages/AdminDashboard';
 import ProductManagement from '../features/admin/pages/ProductManagement';
 import CategoryManagement from '../features/admin/pages/CategoryManagement';
-import BrandManagement from '../features/admin/pages/BrandManagement';
 import CollectionsManagement from '../features/admin/pages/CollectionsManagement';
 import OrderManagement from '../features/admin/pages/OrderManagement';
 import UserManagement from '../features/admin/pages/UserManagement';
@@ -55,7 +54,7 @@ const Router = () => {
         <Route path="collections/:id" element={<CollectionDetailPage />} />
         <Route path="login" element={<LoginPage />} />
         <Route path="register" element={<RegisterPage />} />
-        <Route path="contact" element={<div>Liên h? Page - Coming Soon</div>} />
+        <Route path="contact" element={<div>Liên hệ Page - Coming Soon</div>} />
         <Route path="wishlist" element={<div>Wishlist Page - Coming Soon</div>} />
         
         {/* Protected Routes */}
@@ -90,7 +89,6 @@ const Router = () => {
         <Route index element={<AdminDashboard />} />
         <Route path="products" element={<ProductManagement />} />
         <Route path="categories" element={<CategoryManagement />} />
-        <Route path="brands" element={<BrandManagement />} />
         <Route path="collections" element={<CollectionsManagement />} />
         <Route path="orders" element={<OrderManagement />} />
         <Route path="users" element={<UserManagement />} />

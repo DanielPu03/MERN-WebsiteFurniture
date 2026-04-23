@@ -41,6 +41,7 @@ const register = async (req, res) => {
         hoTen: user.hoTen,
         email: user.email,
         soDienThoai: user.soDienThoai,
+        diaChi: user.diaChi,
         role: user.role,
         trangThai: user.trangThai
       },
@@ -99,6 +100,7 @@ const login = async (req, res) => {
         hoTen: user.hoTen,
         email: user.email,
         soDienThoai: user.soDienThoai,
+        diaChi: user.diaChi,
         role: user.role,
         trangThai: user.trangThai
       },
@@ -117,6 +119,7 @@ const getMe = async (req, res) => {
         hoTen: req.user.hoTen,
         email: req.user.email,
         soDienThoai: req.user.soDienThoai,
+        diaChi: req.user.diaChi,
         role: req.user.role,
         trangThai: req.user.trangThai,
         ngayTao: req.user.ngayTao
@@ -127,11 +130,17 @@ const getMe = async (req, res) => {
 
 // @desc    Update user profile
 const updateProfile = async (req, res) => {
-  const { hoTen, soDienThoai } = req.body;
+  const { hoTen, soDienThoai, diaChi } = req.body;
+
+  // Build update object with only provided fields
+  const updateData = {};
+  if (hoTen !== undefined) updateData.hoTen = hoTen;
+  if (soDienThoai !== undefined) updateData.soDienThoai = soDienThoai;
+  if (diaChi !== undefined) updateData.diaChi = diaChi;
 
   const user = await User.findByIdAndUpdate(
     req.user._id,
-    { hoTen, soDienThoai },
+    updateData,
     { new: true, runValidators: true }
   );
 
@@ -144,6 +153,7 @@ const updateProfile = async (req, res) => {
         hoTen: user.hoTen,
         email: user.email,
         soDienThoai: user.soDienThoai,
+        diaChi: user.diaChi,
         role: user.role,
         trangThai: user.trangThai
       }

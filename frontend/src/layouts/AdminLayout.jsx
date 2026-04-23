@@ -40,11 +40,6 @@ const AdminLayout = () => {
       icon: Tags,
     },
     {
-      name: 'Thương hiệu',
-      href: '/admin/brands',
-      icon: Building2,
-    },
-    {
       name: 'Bộ sưu tập',
       href: '/admin/collections',
       icon: Layers,
