@@ -5,6 +5,28 @@ const BoSuuTap = require('../models/BoSuuTap');
 const multer = require('multer');
 const path = require('path');
 
+// Helper function to update product status based on stock
+const updateProductStatusBasedOnStock = async (productId) => {
+  try {
+    const product = await SanPham.findById(productId);
+    if (product) {
+      // If stock is 0, automatically set status to inactive
+      if (product.soLuongTon === 0 && product.trangThai) {
+        product.trangThai = false;
+        await product.save();
+      }
+      // If stock is > 0 and status is inactive, optionally auto-enable (commented out by default)
+      // Uncomment the following lines if you want auto-enable when stock is available
+      // else if (product.soLuongTon > 0 && !product.trangThai) {
+      //   product.trangThai = true;
+      //   await product.save();
+      // }
+    }
+  } catch (error) {
+    console.error('Error updating product status based on stock:', error);
+  }
+};
+
 // Configure multer for image upload
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -44,12 +66,28 @@ const getProducts = async (req, res) => {
       search,
       sortBy = 'ngayTao',
       sortOrder = 'desc',
-      featured
+      featured,
+      trangThai
     } = req.query;
 
-    console.log('getProducts query params:', { page, limit, category, brand, search, sortBy, sortOrder });
-
-    const query = { trangThai: true };
+    // Build query - only filter by trangThai if explicitly provided
+    // Admin can see all products by default, regular users only see active products
+    const query = {};
+    
+    // Check if this is an admin request (via query parameter)
+    const isAdminRequest = req.query.admin === 'true';
+    
+    // If trangThai is explicitly provided in query, use it regardless of admin status
+    if (trangThai !== undefined) {
+      query.trangThai = trangThai === 'true';
+    } else {
+      // Default: only show active products for regular users
+      // Admin can see all products if they don't specify trangThai
+      if (!isAdminRequest) {
+        // Regular user - only show active products
+        query.trangThai = true;
+      }
+    }
 
     // Featured filter
     if (featured !== undefined) {
@@ -58,12 +96,9 @@ const getProducts = async (req, res) => {
 
     // Category filter
     if (category) {
-      console.log('Filtering by category:', category);
       const danhMuc = await DanhMuc.findOne({ tenDanhMuc: category });
-      console.log('Found category:', danhMuc);
       if (danhMuc) {
         query.danhMucId = danhMuc._id;
-        console.log('Added danhMucId to query:', danhMuc._id);
       }
     }
 
@@ -310,8 +345,6 @@ const updateProduct = async (req, res) => {
       updateData.hinhAnh = processedImages;
     }
 
-    console.log('Update data:', updateData);
-
     const product = await SanPham.findByIdAndUpdate(
       req.params.id,
       updateData,
@@ -325,6 +358,11 @@ const updateProduct = async (req, res) => {
         success: false,
         message: 'Product not found'
       });
+    }
+
+    // Auto-update status based on stock if stock was changed
+    if (updateData.soLuongTon !== undefined) {
+      await updateProductStatusBasedOnStock(req.params.id);
     }
 
     res.json({
@@ -570,6 +608,37 @@ const setMainProductImage = async (req, res) => {
   }
 };
 
+// @desc   // Update product status
+const updateProductStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { trangThai } = req.body;
+
+    const product = await SanPham.findById(id);
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found'
+      });
+    }
+
+    product.trangThai = trangThai;
+    await product.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Product status updated successfully',
+      data: { product }
+    });
+  } catch (error) {
+    console.error('Error in updateProductStatus:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
 module.exports = {
   getProducts,
   getProductById,
@@ -581,5 +650,7 @@ module.exports = {
   uploadProductImages,
   deleteProductImage,
   setMainProductImage,
-  upload
+  upload,
+  updateProductStatus,
+  updateProductStatusBasedOnStock
 };

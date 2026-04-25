@@ -120,26 +120,26 @@ const AdminLayout = () => {
             </nav>
           </div>
           <div className="flex-shrink-0 flex border-t border-gray-200 p-4">
-            <div className="flex items-center">
+            <div className="flex items-center w-full">
               <div className="flex-shrink-0">
-                <div className="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center">
-                  <span className="text-white text-sm font-medium">
+                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg">
+                  <span className="text-white text-sm font-bold">
                     {user?.hoTen?.charAt(0)?.toUpperCase() || 'A'}
                   </span>
                 </div>
               </div>
-              <div className="ml-3">
-                <p className="text-sm font-medium text-gray-700">{user?.hoTen || 'Admin'}</p>
+              <div className="ml-3 flex-1">
+                <p className="text-sm font-semibold text-gray-900">{user?.hoTen || 'Admin'}</p>
                 <p className="text-xs text-gray-500">Quản trị viên</p>
               </div>
+              <button
+                onClick={logout}
+                className="ml-2 p-2 rounded-full text-gray-400 hover:text-red-600 hover:bg-red-50 transition-all duration-200"
+                title="Đăng xuất"
+              >
+                <LogOut className="h-5 w-5" />
+              </button>
             </div>
-            <button
-              onClick={logout}
-              className="mt-3 w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-            >
-              <LogOut className="h-4 w-4 mr-2" />
-              Đăng xuất
-            </button>
           </div>
         </div>
       </div>
@@ -176,26 +176,26 @@ const AdminLayout = () => {
               </nav>
             </div>
             <div className="flex-shrink-0 flex border-t border-gray-200 p-4">
-              <div className="flex items-center">
+              <div className="flex items-center w-full">
                 <div className="flex-shrink-0">
-                  <div className="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center">
-                    <span className="text-white text-sm font-medium">
+                  <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg">
+                    <span className="text-white text-sm font-bold">
                       {user?.hoTen?.charAt(0)?.toUpperCase() || 'A'}
                     </span>
                   </div>
                 </div>
-                <div className="ml-3">
-                  <p className="text-sm font-medium text-gray-700">{user?.hoTen || 'Admin'}</p>
+                <div className="ml-3 flex-1">
+                  <p className="text-sm font-semibold text-gray-900">{user?.hoTen || 'Admin'}</p>
                   <p className="text-xs text-gray-500">Quản trị viên</p>
                 </div>
+                <button
+                  onClick={logout}
+                  className="ml-2 p-2 rounded-full text-gray-400 hover:text-red-600 hover:bg-red-50 transition-all duration-200"
+                  title="Đăng xuất"
+                >
+                  <LogOut className="h-5 w-5" />
+                </button>
               </div>
-              <button
-                onClick={logout}
-                className="mt-3 w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-              >
-                <LogOut className="h-4 w-4 mr-2" />
-                Đăng xuất
-              </button>
             </div>
           </div>
         </div>

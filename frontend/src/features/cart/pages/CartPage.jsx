@@ -10,6 +10,10 @@ const CartPage = () => {
   const dispatch = useAppDispatch();
   const [updatingItems, setUpdatingItems] = useState(new Set());
 
+  // Check if any items are inactive
+  const hasInactiveItems = items.some(item => !item.trangThai);
+  const inactiveItems = items.filter(item => !item.trangThai);
+
   // Load cart data when component mounts
   useEffect(() => {
     getCart();
@@ -96,6 +100,16 @@ const CartPage = () => {
           </Link>
         </div>
 
+        {/* Inactive Items Warning */}
+        {hasInactiveItems && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <p className="text-red-800 font-medium">⚠️ Cảnh báo: Có sản phẩm đã ngừng kinh doanh</p>
+            <p className="text-red-600 text-sm mt-1">
+              {inactiveItems.length} sản phẩm trong giỏ hàng đã ngừng bán. Vui lòng xóa chúng trước khi thanh toán.
+            </p>
+          </div>
+        )}
+
         {items.length === 0 ? (
           /* Empty Cart */
           <div className="text-center py-12">
@@ -136,12 +150,19 @@ const CartPage = () => {
                     {/* Product Info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-start mb-2">
-                        <h3 className="text-lg font-semibold text-gray-900 line-clamp-2">
-                          {item.tenSanPham}
-                        </h3>
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold text-gray-900 line-clamp-2">
+                            {item.tenSanPham}
+                          </h3>
+                          {!item.trangThai && (
+                            <span className="inline-block mt-1 px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">
+                              Ngừng bán
+                            </span>
+                          )}
+                        </div>
                         <button
                           onClick={() => handleRemoveItem(item.sanPhamId)}
-                          className="text-red-500 hover:text-red-700 transition-colors"
+                          className="text-red-500 hover:text-red-700 transition-colors ml-2"
                           disabled={updatingItems.has(item.sanPhamId)}
                         >
                           <Trash2 className="w-5 h-5" />
@@ -216,7 +237,17 @@ const CartPage = () => {
                 </button>
                 <Link
                   to="/checkout"
-                  className="w-full px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors text-center"
+                  className={`w-full px-6 py-3 text-white rounded-lg font-semibold transition-colors text-center ${
+                    hasInactiveItems
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-purple-600 hover:bg-purple-700'
+                  }`}
+                  onClick={(e) => {
+                    if (hasInactiveItems) {
+                      e.preventDefault();
+                      toast.error('Vui lòng xóa các sản phẩm đã ngừng bán trước khi thanh toán!');
+                    }
+                  }}
                 >
                   Thanh toán
                 </Link>

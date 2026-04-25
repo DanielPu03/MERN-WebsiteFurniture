@@ -215,18 +215,18 @@ export const APP_CONFIG = {
   VERSION: '1.0.0',
   DESCRIPTION: 'Furniture E-commerce Platform',
   AUTHOR: 'Your Name',
-  CONTACT_EMAIL: 'contact@havystore.com',
-  CONTACT_PHONE: '0123456789',
-  ADDRESS: '123 Nguyễn Huệ, Q.1, TP.HCM',
+  CONTACT_EMAIL: 'trunqphu.209@gmail.com',
+  CONTACT_PHONE: '0832723534',
+  ADDRESS: '180 Cao Lo, Phuong 4, Quan 8, HCM',
 };
 
 // Social Media
 export const SOCIAL_MEDIA = {
-  FACEBOOK: 'https://facebook.com/havystore',
-  INSTAGRAM: 'https://instagram.com/havystore',
-  YOUTUBE: 'https://youtube.com/havystore',
-  TWITTER: 'https://twitter.com/havystore',
-  ZALO: 'https://zalo.me/havystore',
+  FACEBOOK: '#',
+  INSTAGRAM: '#',
+  YOUTUBE: '#',
+  TWITTER: '#',
+  ZALO: '#',
 };
 
 // Currency

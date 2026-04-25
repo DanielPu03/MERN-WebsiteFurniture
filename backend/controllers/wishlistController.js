@@ -1,11 +1,12 @@
 const Wishlist = require('../models/Wishlist');
 const SanPham = require('../models/SanPham');
+const User = require('../models/User');
 
 // Get user's wishlist
 const getWishlist = async (req, res) => {
   try {
     let wishlist = await Wishlist.findOne({ nguoiDungId: req.user._id })
-      .populate('danhSachSanPham.sanPhamId', 'tenSanPham gia hinhAnh soLuongTon');
+      .populate('danhSachSanPham.sanPhamId', 'tenSanPham gia hinhAnh soLuongTon trangThai');
 
     if (!wishlist) {
       wishlist = await Wishlist.create({
@@ -19,6 +20,55 @@ const getWishlist = async (req, res) => {
       data: { wishlist }
     });
   } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// Get all wishlists (admin)
+const getAllWishlists = async (req, res) => {
+  try {
+    const { search } = req.query;
+    
+    const wishlists = await Wishlist.find()
+      .populate('nguoiDungId', 'hoTen email')
+      .populate('danhSachSanPham.sanPhamId', 'tenSanPham gia hinhAnh soLuongTon trangThai');
+
+    // Flatten wishlist items for easier display
+    const flattenedWishlists = [];
+    for (const wishlist of wishlists) {
+      if (wishlist.danhSachSanPham && wishlist.danhSachSanPham.length > 0) {
+        for (const item of wishlist.danhSachSanPham) {
+          try {
+            if (item.sanPhamId && item.sanPhamId.tenSanPham) {
+              // Filter by search if provided
+              if (search && !item.sanPhamId.tenSanPham.toLowerCase().includes(search.toLowerCase())) {
+                continue;
+              }
+              
+              flattenedWishlists.push({
+                _id: `${wishlist._id}_${item.sanPhamId._id}`,
+                wishlistId: wishlist._id,
+                nguoiDungId: wishlist.nguoiDungId,
+                sanPhamId: item.sanPhamId,
+                ngayThem: item.ngayThem
+              });
+            }
+          } catch (err) {
+            console.error('Error processing wishlist item:', err);
+          }
+        }
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      data: flattenedWishlists
+    });
+  } catch (error) {
+    console.error('Error in getAllWishlists:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -72,7 +122,7 @@ const addToWishlist = async (req, res) => {
 
     // Populate and return updated wishlist
     const populatedWishlist = await Wishlist.findById(wishlist._id)
-      .populate('danhSachSanPham.sanPhamId', 'tenSanPham gia hinhAnh soLuongTon');
+      .populate('danhSachSanPham.sanPhamId', 'tenSanPham gia hinhAnh soLuongTon trangThai');
 
     res.status(200).json({
       success: true,
@@ -110,12 +160,44 @@ const removeFromWishlist = async (req, res) => {
 
     // Populate and return updated wishlist
     const populatedWishlist = await Wishlist.findById(wishlist._id)
-      .populate('danhSachSanPham.sanPhamId', 'tenSanPham gia hinhAnh soLuongTon');
+      .populate('danhSachSanPham.sanPhamId', 'tenSanPham gia hinhAnh soLuongTon trangThai');
 
     res.status(200).json({
       success: true,
       message: 'Product removed from wishlist successfully',
       data: { wishlist: populatedWishlist }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// Remove product from any user's wishlist (admin)
+const removeFromWishlistAdmin = async (req, res) => {
+  try {
+    const { wishlistId, sanPhamId } = req.params;
+
+    const wishlist = await Wishlist.findById(wishlistId);
+    if (!wishlist) {
+      return res.status(404).json({
+        success: false,
+        message: 'Wishlist not found'
+      });
+    }
+
+    // Remove product from wishlist
+    wishlist.danhSachSanPham = wishlist.danhSachSanPham.filter(
+      item => item.sanPhamId.toString() !== sanPhamId
+    );
+
+    await wishlist.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Product removed from wishlist successfully'
     });
   } catch (error) {
     res.status(500).json({
@@ -185,8 +267,10 @@ const clearWishlist = async (req, res) => {
 
 module.exports = {
   getWishlist,
+  getAllWishlists,
   addToWishlist,
   removeFromWishlist,
+  removeFromWishlistAdmin,
   checkProductInWishlist,
   clearWishlist
 };

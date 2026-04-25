@@ -27,6 +27,10 @@ const WishlistPage = () => {
   };
 
   const handleAddToCart = (product) => {
+    if (!product.trangThai) {
+      toast.error('Sản phẩm đã ngừng kinh doanh!');
+      return;
+    }
     addToCart(product._id, 1);
     toast.success('Đã thêm vào giỏ hàng');
   };
@@ -70,6 +74,7 @@ const WishlistPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {wishlistItems.map((item) => {
             const product = item.sanPhamId;
+            if (!product) return null; // Skip if product is null
             return (
               <div
                 key={item._id}
@@ -101,9 +106,16 @@ const WishlistPage = () => {
                 </div>
 
                 <div className="p-4">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
-                    {product.tenSanPham}
-                  </h3>
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="text-lg font-semibold text-gray-900 line-clamp-2 flex-1">
+                      {product.tenSanPham}
+                    </h3>
+                    {!product.trangThai && (
+                      <span className="ml-2 px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full whitespace-nowrap">
+                        Ngừng bán
+                      </span>
+                    )}
+                  </div>
 
                   <div className="flex items-center justify-between mb-4">
                     <p className="text-xl font-bold text-blue-600">
@@ -118,10 +130,10 @@ const WishlistPage = () => {
                     variant="primary"
                     size="sm"
                     className="w-full"
-                    disabled={product.soLuongTon === 0}
+                    disabled={!product.trangThai || product.soLuongTon === 0}
                     onClick={() => handleAddToCart(product)}
                   >
-                    {product.soLuongTon === 0 ? 'Hết hàng' : 'Thêm vào giỏ'}
+                    {!product.trangThai ? 'Ngừng bán' : product.soLuongTon === 0 ? 'Hết hàng' : 'Thêm vào giỏ'}
                   </Button>
                 </div>
               </div>

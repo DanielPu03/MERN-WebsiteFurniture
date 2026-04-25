@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, Edit2, Trash2, Tag } from 'lucide-react';
+import { Search, Plus, Tag } from 'lucide-react';
 import toast from 'react-hot-toast';
+import CategoryTable from '../components/CategoryTable';
+import CategoryModal from '../components/CategoryModal';
 
 const CategoryManagement = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [formData, setFormData] = useState({
     tenDanhMuc: '',
@@ -48,6 +51,7 @@ const CategoryManagement = () => {
 
   const handleAddCategory = async () => {
     try {
+      setSaving(true);
       const response = await fetch('http://localhost:5000/api/categories', {
         method: 'POST',
         headers: {
@@ -60,7 +64,7 @@ const CategoryManagement = () => {
       const data = await response.json();
       if (data.success) {
         toast.success('Thêm danh mục thành công!');
-        setShowAddModal(false);
+        setShowModal(false);
         resetForm();
         loadCategories();
       } else {
@@ -68,11 +72,14 @@ const CategoryManagement = () => {
       }
     } catch (error) {
       toast.error('Lỗi khi thêm danh mục!');
+    } finally {
+      setSaving(false);
     }
   };
 
   const handleUpdateCategory = async () => {
     try {
+      setSaving(true);
       const response = await fetch(`http://localhost:5000/api/categories/${selectedCategory._id}`, {
         method: 'PUT',
         headers: {
@@ -85,7 +92,7 @@ const CategoryManagement = () => {
       const data = await response.json();
       if (data.success) {
         toast.success('Cập nhật danh mục thành công!');
-        setShowEditModal(false);
+        setShowModal(false);
         resetForm();
         loadCategories();
       } else {
@@ -93,6 +100,8 @@ const CategoryManagement = () => {
       }
     } catch (error) {
       toast.error('Lỗi khi cập nhật danh mục!');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -133,7 +142,27 @@ const CategoryManagement = () => {
       tenDanhMuc: category.tenDanhMuc || '',
       moTa: category.moTa || ''
     });
-    setShowEditModal(true);
+    setIsEdit(true);
+    setShowModal(true);
+  };
+
+  const handleAddClick = () => {
+    resetForm();
+    setIsEdit(false);
+    setShowModal(true);
+  };
+
+  const handleSave = () => {
+    if (isEdit) {
+      handleUpdateCategory();
+    } else {
+      handleAddCategory();
+    }
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    resetForm();
   };
 
   return (
@@ -143,7 +172,7 @@ const CategoryManagement = () => {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-gray-900">Quản lý danh mục</h1>
           <button
-            onClick={() => setShowAddModal(true)}
+            onClick={handleAddClick}
             className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
           >
             <Plus className="w-4 h-4" />
@@ -166,194 +195,23 @@ const CategoryManagement = () => {
         </div>
 
         {/* Categories Table */}
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên danh mục</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mô tả</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số sản phẩm</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {loading ? (
-                  <tr>
-                    <td colSpan="4" className="px-6 py-4 text-center">
-                      <div className="flex justify-center">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                      </div>
-                    </td>
-                  </tr>
-                ) : categories.length === 0 ? (
-                  <tr>
-                    <td colSpan="4" className="px-6 py-4 text-center text-gray-500">
-                      Không có danh mục nào
-                    </td>
-                  </tr>
-                ) : (
-                  categories.map((category) => (
-                    <tr key={category._id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <Tag className="w-5 h-5 text-blue-500 mr-2" />
-                          <div className="text-sm font-medium text-gray-900">{category.tenDanhMuc}</div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm text-gray-900">{category.moTa || '-'}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{category.soLuongSanPham || 0}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => openEditModal(category)}
-                            className="text-blue-600 hover:text-blue-900"
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteCategory(category._id)}
-                            className="text-red-600 hover:text-red-900"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <CategoryTable
+          categories={categories}
+          loading={loading}
+          onEdit={openEditModal}
+          onDelete={handleDeleteCategory}
+        />
 
-        {/* Add Category Modal */}
-        {showAddModal && (
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-            <div className="relative min-h-screen flex items-center justify-center p-4">
-              <div className="relative bg-white rounded-lg text-left overflow-hidden shadow-xl max-w-md w-full">
-                <div className="flex justify-between items-center px-6 py-4 border-b">
-                  <h3 className="text-lg font-medium text-gray-900">Thêm danh mục mới</h3>
-                  <button
-                    onClick={() => {
-                      setShowAddModal(false);
-                      resetForm();
-                    }}
-                    className="text-gray-400 hover:text-gray-600"
-                  >
-                    <Trash2 className="w-6 h-6" />
-                  </button>
-                </div>
-
-                <div className="px-6 py-4">
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Tên danh mục *</label>
-                    <input
-                      type="text"
-                      value={formData.tenDanhMuc}
-                      onChange={(e) => setFormData(prev => ({ ...prev, tenDanhMuc: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Mô tả</label>
-                    <textarea
-                      value={formData.moTa}
-                      onChange={(e) => setFormData(prev => ({ ...prev, moTa: e.target.value }))}
-                      rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex justify-end px-6 py-4 bg-gray-50 border-t">
-                  <button
-                    onClick={() => {
-                      setShowAddModal(false);
-                      resetForm();
-                    }}
-                    className="mr-3 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-                  >
-                    Hủy
-                  </button>
-                  <button
-                    onClick={handleAddCategory}
-                    className="px-4 py-2 bg-blue-600 border border-transparent rounded-md font-medium text-white hover:bg-blue-700"
-                  >
-                    Thêm danh mục
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Edit Category Modal */}
-        {showEditModal && selectedCategory && (
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-            <div className="relative min-h-screen flex items-center justify-center p-4">
-              <div className="relative bg-white rounded-lg text-left overflow-hidden shadow-xl max-w-md w-full">
-                <div className="flex justify-between items-center px-6 py-4 border-b">
-                  <h3 className="text-lg font-medium text-gray-900">Cập nhật danh mục</h3>
-                  <button
-                    onClick={() => {
-                      setShowEditModal(false);
-                      resetForm();
-                    }}
-                    className="text-gray-400 hover:text-gray-600"
-                  >
-                    <Trash2 className="w-6 h-6" />
-                  </button>
-                </div>
-
-                <div className="px-6 py-4">
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Tên danh mục *</label>
-                    <input
-                      type="text"
-                      value={formData.tenDanhMuc}
-                      onChange={(e) => setFormData(prev => ({ ...prev, tenDanhMuc: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Mô tả</label>
-                    <textarea
-                      value={formData.moTa}
-                      onChange={(e) => setFormData(prev => ({ ...prev, moTa: e.target.value }))}
-                      rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex justify-end px-6 py-4 bg-gray-50 border-t">
-                  <button
-                    onClick={() => {
-                      setShowEditModal(false);
-                      resetForm();
-                    }}
-                    className="mr-3 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-                  >
-                    Hủy
-                  </button>
-                  <button
-                    onClick={handleUpdateCategory}
-                    className="px-4 py-2 bg-blue-600 border border-transparent rounded-md font-medium text-white hover:bg-blue-700"
-                  >
-                    Cập nhật danh mục
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Category Modal */}
+        <CategoryModal
+          isOpen={showModal}
+          onClose={handleCloseModal}
+          onSave={handleSave}
+          formData={formData}
+          setFormData={setFormData}
+          isEdit={isEdit}
+          loading={saving}
+        />
       </div>
     </div>
   );

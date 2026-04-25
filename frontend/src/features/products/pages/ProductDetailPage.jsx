@@ -11,16 +11,23 @@ import ProductInfo from '../components/ProductInfo';
 import QuantitySelector from '../components/QuantitySelector';
 import ProductFeatures from '../components/ProductFeatures';
 import RelatedProducts from '../components/RelatedProducts';
+import { useDispatch, useSelector } from 'react-redux';
+import { addToWishlist, removeFromWishlist, getWishlist } from '../../wishlist/store/wishlistSlice';
+import { useAuth } from '../../../shared/hooks/useRedux';
 
 const ProductDetailPage = () => {
     const { id } = useParams();
   const navigate = useNavigate();
   const { currentProduct, isLoading, error, getProductById, getRelatedProducts, relatedProducts, dispatch } = useProduct();
   const { addToCart } = useCart();
+  const { user } = useAuth();
+  const wishlistDispatch = useDispatch();
+  const wishlistProductIds = useSelector(state => state.wishlist.wishlistProductIds || []);
   const [quantity, setQuantity] = React.useState(1);
   const [selectedImage, setSelectedImage] = React.useState(0);
   
-  
+  const isInWishlist = currentProduct && wishlistProductIds.includes(currentProduct._id);
+
   React.useEffect(() => {
     if (id) {
       dispatch(getProductById(id));
@@ -37,9 +44,20 @@ const ProductDetailPage = () => {
     }
   }, [currentProduct, id]);
 
+  React.useEffect(() => {
+    if (user) {
+      wishlistDispatch(getWishlist());
+    }
+  }, [user]);
+
   const handleAddToCart = async () => {
     if (!currentProduct || !currentProduct._id) {
       toast.error('Không tìm thấy sản phẩm!');
+      return;
+    }
+
+    if (!currentProduct.trangThai) {
+      toast.error('Sản phẩm đã ngừng kinh doanh!');
       return;
     }
 
@@ -66,6 +84,31 @@ const ProductDetailPage = () => {
 
     if (newQuantity >= 1 && newQuantity <= (currentProduct?.soLuongTon || 1)) {
       setQuantity(newQuantity);
+    }
+  };
+
+  const handleToggleWishlist = async () => {
+    if (!user) {
+      toast.error('Vui lòng đăng nhập để thêm vào danh sách yêu thích!');
+      navigate('/login');
+      return;
+    }
+
+    if (!currentProduct || !currentProduct._id) {
+      toast.error('Không tìm thấy sản phẩm!');
+      return;
+    }
+
+    try {
+      if (isInWishlist) {
+        await wishlistDispatch(removeFromWishlist(currentProduct._id)).unwrap();
+        toast.success('Đã xóa khỏi danh sách yêu thích!');
+      } else {
+        await wishlistDispatch(addToWishlist(currentProduct._id)).unwrap();
+        toast.success('Đã thêm vào danh sách yêu thích!');
+      }
+    } catch (error) {
+      toast.error('Không thể cập nhật danh sách yêu thích!');
     }
   };
 
@@ -122,6 +165,14 @@ const ProductDetailPage = () => {
         <div className="space-y-6">
           <ProductInfo product={currentProduct} />
 
+          {/* Status Warning */}
+          {!currentProduct.trangThai && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <p className="text-red-800 font-medium">⚠️ Sản phẩm đã ngừng kinh doanh</p>
+              <p className="text-red-600 text-sm mt-1">Sản phẩm này hiện không khả dụng để mua.</p>
+            </div>
+          )}
+
           {/* Quantity and Add to Cart */}
           <div className="space-y-4">
             <QuantitySelector
@@ -133,14 +184,18 @@ const ProductDetailPage = () => {
             <div className="flex space-x-4">
               <Button
                 onClick={handleAddToCart}
-                disabled={currentProduct.soLuongTon === 0}
+                disabled={!currentProduct.trangThai || currentProduct.soLuongTon === 0}
                 className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
               >
                 <ShoppingCart className="h-5 w-5 mr-2" />
-                Thêm vào giỏ hàng
+                {!currentProduct.trangThai ? 'Ngừng bán' : currentProduct.soLuongTon === 0 ? 'Hết hàng' : 'Thêm vào giỏ hàng'}
               </Button>
-              <Button variant="outline" className="p-3">
-                <Heart className="h-5 w-5" />
+              <Button
+                variant="outline"
+                className="p-3"
+                onClick={handleToggleWishlist}
+              >
+                <Heart className={`h-5 w-5 ${isInWishlist ? 'fill-red-500 text-red-500' : ''}`} />
               </Button>
               <Button variant="outline" className="p-3">
                 <Share2 className="h-5 w-5" />
