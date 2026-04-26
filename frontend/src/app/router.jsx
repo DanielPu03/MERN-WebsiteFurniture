@@ -24,7 +24,6 @@ import CategoryManagement from '../features/admin/pages/CategoryManagement';
 import CollectionsManagement from '../features/admin/pages/CollectionsManagement';
 import OrderManagement from '../features/admin/pages/OrderManagement';
 import UserManagement from '../features/admin/pages/UserManagement';
-import ReviewManagement from '../features/admin/pages/ReviewManagement';
 import WishlistManagement from '../features/admin/pages/WishlistManagement';
 import Settings from '../features/admin/pages/Settings';
 
@@ -97,7 +96,6 @@ const Router = () => {
         <Route path="collections" element={<CollectionsManagement />} />
         <Route path="orders" element={<OrderManagement />} />
         <Route path="users" element={<UserManagement />} />
-        <Route path="reviews" element={<ReviewManagement />} />
         <Route path="wishlist" element={<WishlistManagement />} />
         <Route path="settings" element={<Settings />} />
       </Route>

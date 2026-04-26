@@ -72,16 +72,7 @@ export const API_ENDPOINTS = {
     REMOVE: '/wishlist/remove/:id',
     CLEAR: '/wishlist/clear',
   },
-  
-  // Reviews
-  REVIEWS: {
-    GET_ALL: '/reviews',
-    GET_BY_ID: '/reviews/:id',
-    CREATE: '/reviews',
-    UPDATE: '/reviews/:id',
-    DELETE: '/reviews/:id',
-  },
-  
+
   // Users
   USERS: {
     GET_ALL: '/users',

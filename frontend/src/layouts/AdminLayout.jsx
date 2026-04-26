@@ -11,7 +11,6 @@ import {
   LogOut,
   BarChart3,
   Tags,
-  Star,
   Heart,
   Building2,
   Layers
@@ -53,11 +52,6 @@ const AdminLayout = () => {
       name: 'Người dùng',
       href: '/admin/users',
       icon: Users,
-    },
-    {
-      name: 'Đánh giá',
-      href: '/admin/reviews',
-      icon: Star,
     },
     {
       name: 'Yêu thích',

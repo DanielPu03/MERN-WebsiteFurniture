@@ -103,7 +103,6 @@ src/
 - **Products**: Product listings, details, filters
 - **Collections**: Collections and product relationships
 - **Orders**: Order history and management
-- **Reviews**: Product reviews and ratings
 
 ## 🎯 Separation of Concerns
 

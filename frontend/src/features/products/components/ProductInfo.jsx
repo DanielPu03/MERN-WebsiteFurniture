@@ -1,35 +1,13 @@
 import React from 'react';
-import { Star } from 'lucide-react';
 import { formatCurrency } from '../../../shared/utils';
 
 const ProductInfo = ({ product }) => {
-  const renderStars = (rating) => {
-    return Array.from({ length: 5 }, (_, i) => (
-      <Star
-        key={i}
-        className={`h-5 w-5 ${
-          i < Math.floor(rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'
-        }`}
-      />
-    ));
-  };
-
   return (
     <div className="space-y-6">
       {/* Product Name */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.tenSanPham}</h1>
         <p className="text-gray-600">{product.moTa || 'Sản phẩm chất lượng cao'}</p>
-      </div>
-
-      {/* Rating */}
-      <div className="flex items-center space-x-4">
-        <div className="flex items-center">
-          {renderStars(product.danhGiaTrungBinh || 0)}
-        </div>
-        <span className="text-gray-600">
-          {product.danhGiaTrungBinh || 0} ({product.soLuongDanhGia || 0} đánh giá)
-        </span>
       </div>
 
       {/* Price */}

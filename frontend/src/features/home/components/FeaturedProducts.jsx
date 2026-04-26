@@ -6,20 +6,6 @@ import Image from '../../../shared/components/Image';
 import { formatCurrency } from '../../../shared/utils';
 
 const ProductCard = ({ product }) => {
-
-  const renderStars = (rating) => {
-    return Array.from({ length: 5 }, (_, i) => (
-      <span
-        key={i}
-        className={`text-sm ${
-          i < Math.floor(rating) ? 'text-yellow-400' : 'text-gray-300'
-        }`}
-      >
-        ★
-      </span>
-    ));
-  };
-
   return (
     <Link to={`/product/${product._id}`} className="block">
       <div className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden group cursor-pointer">
@@ -61,11 +47,6 @@ const ProductCard = ({ product }) => {
             <span className="text-2xl font-bold text-purple-600">
               {formatCurrency(product.gia)}
             </span>
-            {product.danhGiaTrungBinh && (
-              <div className="flex items-center">
-                {renderStars(product.danhGiaTrungBinh)}
-              </div>
-            )}
           </div>
 
           <div className="flex items-center justify-between text-sm text-gray-600">

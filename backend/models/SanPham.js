@@ -91,17 +91,6 @@ const sanPhamSchema = new mongoose.Schema({
     maxlength: [500]
   },
   hinhAnh: hinhAnhMixedSchema,
-  danhGiaTrungBinh: {
-    type: Number,
-    default: 0,
-    min: 0,
-    max: 5
-  },
-  soLuongDanhGia: {
-    type: Number,
-    default: 0,
-    min: 0
-  },
   trangThai: {
     type: Boolean,
     default: true
@@ -177,30 +166,5 @@ sanPhamSchema.pre(['updateOne', 'updateMany', 'findOneAndUpdate'], function(next
 
 // Index for search
 sanPhamSchema.index({ tenSanPham: 'text', moTa: 'text' });
-
-// Update average rating when reviews are added/removed
-sanPhamSchema.methods.updateAverageRating = async function() {
-  const DanhGia = mongoose.model('DanhGia');
-  const stats = await DanhGia.aggregate([
-    { $match: { sanPhamId: this._id } },
-    {
-      $group: {
-        _id: '$sanPhamId',
-        avgRating: { $avg: '$soSao' },
-        count: { $sum: 1 }
-      }
-    }
-  ]);
-
-  if (stats.length > 0) {
-    this.danhGiaTrungBinh = Math.round(stats[0].avgRating * 10) / 10;
-    this.soLuongDanhGia = stats[0].count;
-  } else {
-    this.danhGiaTrungBinh = 0;
-    this.soLuongDanhGia = 0;
-  }
-
-  await this.save();
-};
 
 module.exports = mongoose.model('SanPham', sanPhamSchema);

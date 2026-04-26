@@ -153,8 +153,6 @@ const getProducts = async (req, res) => {
     const sortOptions = {};
     if (sortBy === 'gia') {
       sortOptions.gia = sortOrder === 'asc' ? 1 : -1;
-    } else if (sortBy === 'danhGia') {
-      sortOptions.danhGiaTrungBinh = sortOrder === 'asc' ? 1 : -1;
     } else if (sortBy === 'tenSanPham') {
       sortOptions.tenSanPham = sortOrder === 'asc' ? 1 : -1;
     } else {

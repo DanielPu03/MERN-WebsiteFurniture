@@ -108,21 +108,6 @@ const ProductCard = ({ product, onAddToCart }) => {
           {product.tenSanPham}
         </h3>
 
-        <div className="flex items-center mb-2">
-          <div className="flex items-center">
-            {[...Array(5)].map((_, index) => (
-              <span key={index} className={`text-yellow-400 ${
-                index < Math.floor(product.danhGiaTrungBinh) ? 'fill-current' : ''
-              }`}>
-                ★
-              </span>
-            ))}
-          </div>
-          <span className="text-sm text-gray-600 ml-2">
-            ({product.soLuongDanhGia || 0} reviews)
-          </span>
-        </div>
-
         <div className="flex items-center justify-between mb-4">
           <div>
             <p className="text-xl font-bold text-blue-600">

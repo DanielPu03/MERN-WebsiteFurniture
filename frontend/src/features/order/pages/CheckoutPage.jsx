@@ -7,7 +7,6 @@ import { PAYMENT_METHODS } from '../../../shared/constants';
 import toast from 'react-hot-toast';
 import AddressSelectModal from '../components/AddressSelectModal';
 import ShippingForm from '../components/ShippingForm';
-import BillingForm from '../components/BillingForm';
 import PaymentMethodSelector from '../components/PaymentMethodSelector';
 import OrderSummary from '../components/OrderSummary';
 import { formatPrice } from '../../../shared/utils/formatters';
@@ -32,15 +31,6 @@ const CheckoutPage = () => {
     notes: '',
     // Payment Info
     paymentMethod: PAYMENT_METHODS.COD,
-    // Billing Info (same as shipping by default)
-    sameAsShipping: true,
-    billingFullName: '',
-    billingPhone: '',
-    billingEmail: '',
-    billingAddress: '',
-    billingCity: '',
-    billingDistrict: '',
-    billingWard: '',
   });
 
   // Load cart data when component mounts
@@ -140,18 +130,6 @@ const CheckoutPage = () => {
     if (!formData.district.trim()) {
       toast.error('Vui lòng nhập quận/huyện');
       return false;
-    }
-
-    // Validate billing info if different from shipping
-    if (!formData.sameAsShipping) {
-      if (!formData.billingFullName.trim()) {
-        toast.error('Vui lòng nhập họ tên người thanh toán');
-        return false;
-      }
-      if (!formData.billingAddress.trim()) {
-        toast.error('Vui lòng nhập địa chỉ thanh toán');
-        return false;
-      }
     }
 
     return true;
@@ -270,12 +248,6 @@ const CheckoutPage = () => {
             {/* Payment Method */}
             <PaymentMethodSelector
               selectedMethod={formData.paymentMethod}
-              onChange={handleChange}
-            />
-
-            {/* Billing Information */}
-            <BillingForm
-              formData={formData}
               onChange={handleChange}
             />
           </div>
