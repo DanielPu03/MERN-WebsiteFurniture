@@ -12,17 +12,35 @@ const getCollections = async (req, res) => {
     }
 
     const collections = await BoSuuTap.find(query)
-      .populate('sanPhams', 'tenSanPham gia hinhAnh')
       .sort({ ngayTao: -1 })
       .limit(limit * 1)
       .skip((page - 1) * limit);
 
     const total = await BoSuuTap.countDocuments(query);
 
+    // Count products for each collection
+    const collectionIds = collections.map(c => c._id);
+    const productCounts = await SanPham.aggregate([
+      { $match: { boSuuTapIds: { $in: collectionIds }, trangThai: true } },
+      { $unwind: '$boSuuTapIds' },
+      { $group: { _id: '$boSuuTapIds', count: { $sum: 1 } } }
+    ]);
+
+    const countMap = {};
+    productCounts.forEach(pc => {
+      countMap[pc._id.toString()] = pc.count;
+    });
+
+    // Add product count to each collection
+    const collectionsWithCount = collections.map(collection => ({
+      ...collection.toObject(),
+      soLuongSanPham: countMap[collection._id.toString()] || 0
+    }));
+
     res.json({
       success: true,
       data: {
-        collections,
+        collections: collectionsWithCount,
         pagination: {
           page: parseInt(page),
           limit: parseInt(limit),

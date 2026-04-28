@@ -53,6 +53,23 @@ const donHangSchema = new mongoose.Schema({
     trim: true,
     maxlength: [500]
   },
+  phuongThucThanhToan: {
+    type: String,
+    enum: ['COD', 'VNPAY'],
+    default: 'COD'
+  },
+  trangThaiThanhToan: {
+    type: String,
+    enum: ['pending', 'paid', 'failed'],
+    default: 'pending'
+  },
+  maGiaoDichVnpay: {
+    type: String,
+    trim: true
+  },
+  ngayThanhToan: {
+    type: Date
+  },
   chiTietDonHang: [chiTietDonHangSchema],
   ngayTao: {
     type: Date,

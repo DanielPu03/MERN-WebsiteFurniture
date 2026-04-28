@@ -26,6 +26,9 @@ import OrderManagement from '../features/admin/pages/OrderManagement';
 import UserManagement from '../features/admin/pages/UserManagement';
 import WishlistManagement from '../features/admin/pages/WishlistManagement';
 import Settings from '../features/admin/pages/Settings';
+import PaymentVNPayReturn from '../features/order/components/PaymentVNPayReturn';
+import PaymentSuccess from '../features/order/pages/PaymentSuccess';
+import PaymentFailure from '../features/order/pages/PaymentFailure';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, requireAdmin = false }) => {
@@ -82,6 +85,9 @@ const Router = () => {
             <ProfilePage />
           </ProtectedRoute>
         } />
+        <Route path="/payment/vnpay/return" element={<PaymentVNPayReturn />} />
+<Route path="/payment/success" element={<PaymentSuccess />} />
+<Route path="/payment/failure" element={<PaymentFailure />} />
       </Route>
       
       {/* Admin Routes */}

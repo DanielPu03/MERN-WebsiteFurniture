@@ -9,7 +9,6 @@ require('dotenv').config();
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const categoryRoutes = require('./routes/categories');
-const brandRoutes = require('./routes/brands');
 const productRoutes = require('./routes/products');
 const cartRoutes = require('./routes/cart');
 const orderRoutes = require('./routes/orders');
@@ -17,6 +16,7 @@ const wishlistRoutes = require('./routes/wishlist');
 const adminRoutes = require('./routes/admin');
 const collectionRoutes = require('./routes/collections');
 const addressRoutes = require('./routes/addresses');
+const vnpayRoutes = require('./routes/vnpay');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -55,7 +55,6 @@ mongoose.connect(process.env.MONGODB_CONNECTIONSTRING || 'mongodb://localhost:27
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/categories', categoryRoutes);
-app.use('/api/brands', brandRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
@@ -63,6 +62,7 @@ app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/collections', collectionRoutes);
 app.use('/api/addresses', addressRoutes);
+app.use('/api/payment/vnpay', vnpayRoutes);
 
 // Root route - API documentation
 app.get('/', (req, res) => {
@@ -73,7 +73,6 @@ app.get('/', (req, res) => {
       auth: '/api/auth',
       users: '/api/users',
       categories: '/api/categories',
-      brands: '/api/brands',
       products: '/api/products',
       cart: '/api/cart',
       orders: '/api/orders',

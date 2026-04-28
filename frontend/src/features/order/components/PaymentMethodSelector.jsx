@@ -1,5 +1,5 @@
 import React from 'react';
-import { CreditCard, Truck } from 'lucide-react';
+import { CreditCard, Truck, Smartphone } from 'lucide-react';
 
 const PaymentMethodSelector = ({ selectedMethod, onChange }) => {
   return (
@@ -27,15 +27,15 @@ const PaymentMethodSelector = ({ selectedMethod, onChange }) => {
           <input
             type="radio"
             name="paymentMethod"
-            value="BANK_TRANSFER"
-            checked={selectedMethod === 'BANK_TRANSFER'}
+            value="VNPAY"
+            checked={selectedMethod === 'VNPAY'}
             onChange={onChange}
             className="mr-3 h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300"
           />
-          <CreditCard className="w-5 h-5 text-purple-600 mr-3" />
+          <Smartphone className="w-5 h-5 text-purple-600 mr-3" />
           <div>
-            <span className="block font-medium text-gray-900">Chuyển khoản ngân hàng</span>
-            <span className="block text-sm text-gray-600">Chuyển khoản qua ngân hàng</span>
+            <span className="block font-medium text-gray-900">VNPay QR Code</span>
+            <span className="block text-sm text-gray-600">Quét mã QR để thanh toán qua VNPay</span>
           </div>
         </label>
       </div>

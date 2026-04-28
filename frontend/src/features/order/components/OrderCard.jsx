@@ -91,7 +91,9 @@ const OrderCard = ({ order, onCancel, onViewDetails }) => {
               <CreditCard className="w-4 h-4 text-gray-600" />
               <span className="font-medium text-gray-900">Thanh toán</span>
             </div>
-            <p className="text-sm text-gray-600">Thanh toán khi nhận hàng (COD)</p>
+            <p className="text-sm text-gray-600">
+              {order.phuongThucThanhToan === 'VNPAY' ? 'Thanh toán qua VNPay' : 'Thanh toán khi nhận hàng (COD)'}
+            </p>
           </div>
         </div>
       </div>

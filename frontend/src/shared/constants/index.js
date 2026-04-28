@@ -86,6 +86,11 @@ export const API_ENDPOINTS = {
     DASHBOARD: '/admin/dashboard',
     STATS: '/admin/stats',
   },
+
+  // Payment
+  PAYMENT: {
+    VNPAY_CREATE: '/payment/vnpay/create',
+  },
 };
 
 // User Roles
@@ -112,9 +117,7 @@ export const PRODUCT_STATUS = {
 // Payment Methods
 export const PAYMENT_METHODS = {
   COD: 'COD',
-  BANK_TRANSFER: 'Bank Transfer',
-  CREDIT_CARD: 'Credit Card',
-  E_WALLET: 'E-Wallet',
+  VNPAY: 'VNPAY',
 };
 
 // Payment Status

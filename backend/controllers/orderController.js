@@ -70,14 +70,27 @@ const createOrder = async (req, res) => {
       diaChiGiaoHang,
       phiVanChuyen = 0,
       ghiChu = '',
-      nguoiDungId
+      nguoiDungId,
+      phuongThucThanhToan = 'COD'
     } = req.body;
+
+    console.log('=== CREATE ORDER REQUEST ===');
+    console.log('Request body:', JSON.stringify(req.body, null, 2));
+    console.log('User:', req.user);
+    console.log('chiTietDonHang:', chiTietDonHang);
+    console.log('phuongThucThanhToan:', phuongThucThanhToan);
+    console.log('Check condition - chiTietDonHang exists:', !!chiTietDonHang);
+    console.log('Check condition - chiTietDonHang.length:', chiTietDonHang?.length);
 
     // If chiTietDonHang is provided (from checkout), use it directly
     if (chiTietDonHang && chiTietDonHang.length > 0) {
+      console.log('ENTERED chiTietDonHang block');
+      console.log('Starting stock validation for', chiTietDonHang.length, 'items');
       // Validate stock for each item
       for (const item of chiTietDonHang) {
+        console.log('Looking up product:', item.sanPhamId);
         const product = await SanPham.findById(item.sanPhamId);
+        console.log('Product found:', product ? product.tenSanPham : 'NOT FOUND');
         if (!product) {
           return res.status(400).json({
             success: false,
@@ -92,10 +105,23 @@ const createOrder = async (req, res) => {
         }
       }
 
+      console.log('Stock validation passed');
+
       // Calculate total
       const tongTien = chiTietDonHang.reduce((total, item) => {
         return total + (item.gia * item.soLuong);
       }, 0) + phiVanChuyen;
+
+      console.log('Calculating total:', tongTien);
+      console.log('About to create order with data:', {
+        nguoiDungId: req.user._id,
+        tongTien,
+        diaChiGiaoHang,
+        phiVanChuyen,
+        ghiChu,
+        chiTietDonHang,
+        phuongThucThanhToan
+      });
 
       // Create order
       const order = await DonHang.create({
@@ -104,8 +130,11 @@ const createOrder = async (req, res) => {
         diaChiGiaoHang,
         phiVanChuyen,
         ghiChu,
-        chiTietDonHang
+        chiTietDonHang,
+        phuongThucThanhToan
       });
+
+      console.log('Order created successfully:', order._id);
 
       // Update product stock
       for (const item of chiTietDonHang) {
@@ -120,13 +149,16 @@ const createOrder = async (req, res) => {
         { danhSachSanPham: [] }
       );
 
+      console.log('Sending 201 response from chiTietDonHang block');
       res.status(201).json({
         success: true,
         data: { order }
       });
+      console.log('Returned after sending 201 response');
       return;
     }
 
+  console.log('ENTERED cart block (chiTietDonHang not provided or empty)');
   // Otherwise, use cart (original logic)
   // Get user's cart
   const cart = await GioHang.findOne({ nguoiDungId: req.user._id })
@@ -181,6 +213,7 @@ const createOrder = async (req, res) => {
   const populatedOrder = await DonHang.findById(order._id)
     .populate('chiTietDonHang.sanPhamId', 'tenSanPham hinhAnh moTa');
 
+  console.log('Sending 201 response: Order created successfully');
   res.status(201).json({
     success: true,
     message: 'Order created successfully',
@@ -188,6 +221,24 @@ const createOrder = async (req, res) => {
   });
   } catch (error) {
     console.error('Error creating order:', error);
+    console.error('Error name:', error.name);
+    console.error('Error message:', error.message);
+    if (error.errors) {
+      console.error('Validation errors:', JSON.stringify(error.errors, null, 2));
+    }
+    
+    // Trả về chi tiết lỗi cho client
+    if (error.name === 'ValidationError') {
+      const messages = Object.values(error.errors).map(err => err.message);
+      console.log('Sending 400 ValidationError response:', messages);
+      return res.status(400).json({
+        success: false,
+        message: 'Validation Error: ' + messages.join(', '),
+        errors: messages
+      });
+    }
+    
+    console.log('Sending 500 error response:', error.message);
     res.status(500).json({
       success: false,
       message: error.message || 'Failed to create order'

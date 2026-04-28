@@ -9,18 +9,18 @@ import AddressSelectModal from '../components/AddressSelectModal';
 import ShippingForm from '../components/ShippingForm';
 import PaymentMethodSelector from '../components/PaymentMethodSelector';
 import OrderSummary from '../components/OrderSummary';
-import { formatPrice } from '../../../shared/utils/formatters';
 
 const CheckoutPage = () => {
-  const { items, totalAmount, itemCount, isLoading: cartLoading, clearCart, getCart } = useCart();
+  const { items, totalAmount, itemCount, isLoading: cartLoading, getCart } = useCart();
   const { user } = useAuth();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState(null);
+
   const [formData, setFormData] = useState({
-    // Shipping Info
     fullName: '',
     phone: '',
     email: '',
@@ -29,25 +29,24 @@ const CheckoutPage = () => {
     district: '',
     ward: '',
     notes: '',
-    // Payment Info
     paymentMethod: PAYMENT_METHODS.COD,
   });
 
-  // Load cart data when component mounts
+  // Load cart
   useEffect(() => {
     getCart();
   }, []);
 
-  // Load user data if available
+  // Load user
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (user) {
+    const userLocal = JSON.parse(localStorage.getItem('user'));
+    if (userLocal) {
       setFormData(prev => ({
         ...prev,
-        fullName: user.tenNguoiDung || '',
-        email: user.email || '',
-        phone: user.soDienThoai || '',
-        address: user.diaChi || '',
+        fullName: userLocal.tenNguoiDung || '',
+        email: userLocal.email || '',
+        phone: userLocal.soDienThoai || '',
+        address: userLocal.diaChi || '',
       }));
     }
   }, []);
@@ -57,40 +56,38 @@ const CheckoutPage = () => {
     const loadDefaultAddress = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:5000/api/addresses', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
+        const res = await fetch('http://localhost:5000/api/addresses', {
+          headers: { Authorization: `Bearer ${token}` }
         });
-        const data = await response.json();
+
+        const data = await res.json();
+
         if (data.success && data.data.addresses.length > 0) {
-          const defaultAddress = data.data.addresses.find(addr => addr.macDinh);
-          if (defaultAddress) {
-            setSelectedAddress(defaultAddress);
+          const def = data.data.addresses.find(a => a.macDinh);
+          if (def) {
+            setSelectedAddress(def);
             setFormData(prev => ({
               ...prev,
-              fullName: defaultAddress.tenNguoiNhan,
-              phone: defaultAddress.soDienThoai,
-              address: defaultAddress.diaChiCuThe,
-              city: defaultAddress.tinhThanh,
-              district: defaultAddress.quanHuyen,
-              ward: defaultAddress.phuongXa
+              fullName: def.tenNguoiNhan,
+              phone: def.soDienThoai,
+              address: def.diaChiCuThe,
+              city: def.tinhThanh,
+              district: def.quanHuyen,
+              ward: def.phuongXa
             }));
           }
         }
-      } catch (error) {
-        console.error('Error loading default address:', error);
+      } catch (err) {
+        console.error(err);
       }
     };
+
     loadDefaultAddress();
   }, []);
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSelectAddress = (address) => {
@@ -107,56 +104,29 @@ const CheckoutPage = () => {
   };
 
   const validateForm = () => {
-    if (!formData.fullName.trim()) {
-      toast.error('Vui lòng nhập họ tên');
-      return false;
-    }
-    if (!formData.phone.trim()) {
-      toast.error('Vui lòng nhập số điện thoại');
-      return false;
-    }
-    if (!formData.email.trim()) {
-      toast.error('Vui lòng nhập email');
-      return false;
-    }
-    if (!formData.address.trim()) {
-      toast.error('Vui lòng nhập địa chỉ');
-      return false;
-    }
-    if (!formData.city.trim()) {
-      toast.error('Vui lòng nhập thành phố');
-      return false;
-    }
-    if (!formData.district.trim()) {
-      toast.error('Vui lòng nhập quận/huyện');
-      return false;
-    }
-
+    if (!formData.fullName) return toast.error('Nhập họ tên'), false;
+    if (!formData.phone) return toast.error('Nhập SĐT'), false;
+    if (!formData.email) return toast.error('Nhập email'), false;
+    if (!formData.address) return toast.error('Nhập địa chỉ'), false;
+    if (!formData.city) return toast.error('Nhập tỉnh'), false;
+    if (!formData.district) return toast.error('Nhập quận'), false;
     return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!validateForm()) {
-      return;
-    }
-
-    if (items.length === 0) {
-      toast.error('Giỏ hàng trống!');
-      return;
-    }
-
-    if (!user || !user._id) {
-      toast.error('Vui lòng đăng nhập để đặt hàng!');
-      navigate('/login');
-      return;
+    if (!validateForm()) return;
+    if (items.length === 0) return toast.error('Giỏ hàng trống');
+    if (!user?._id) {
+      toast.error('Vui lòng đăng nhập');
+      return navigate('/login');
     }
 
     setIsSubmitting(true);
 
     try {
-      const addressToUse = selectedAddress || {
+      const addr = selectedAddress || {
         tenNguoiNhan: formData.fullName,
         soDienThoai: formData.phone,
         diaChiCuThe: formData.address,
@@ -167,135 +137,169 @@ const CheckoutPage = () => {
 
       const orderData = {
         nguoiDungId: user._id,
-        chiTietDonHang: items.map(item => ({
-          sanPhamId: item.sanPhamId,
-          soLuong: item.soLuong,
-          gia: item.gia
+        chiTietDonHang: items.map(i => ({
+          sanPhamId: i.sanPhamId,
+          soLuong: i.soLuong,
+          gia: i.gia
         })),
-        diaChiGiaoHang: `${addressToUse.tenNguoiNhan}, ${addressToUse.soDienThoai}, ${formData.email}, ${addressToUse.diaChiCuThe}, ${addressToUse.phuongXa}, ${addressToUse.quanHuyen}, ${addressToUse.tinhThanh}`,
-        ghiChu: formData.notes || '',
+        diaChiGiaoHang: `${addr.tenNguoiNhan}, ${addr.soDienThoai}, ${formData.email}, ${addr.diaChiCuThe}, ${addr.phuongXa}, ${addr.quanHuyen}, ${addr.tinhThanh}`,
+        ghiChu: formData.notes,
         phiVanChuyen: 0,
-        phuongThucThanhToan: formData.paymentMethod,
+        phuongThucThanhToan: formData.paymentMethod
       };
 
-      await dispatch(createOrder(orderData));
-      toast.success('Đặt hàng thành công!');
-      navigate('/orders');
-    } catch (error) {
-      toast.error('Đặt hàng thất bại!');
-    } finally {
-      setIsSubmitting(false);
+      // ===== VNPAY =====
+      if (formData.paymentMethod === 'VNPAY') {
+        const orderRes = await dispatch(createOrder(orderData)).unwrap();
+
+        const orderId = orderRes.data?.order?._id || orderRes.order?._id || orderRes._id;
+        const amount = orderRes.data?.order?.tongTien || orderRes.order?.tongTien || orderRes.tongTien;
+
+        if (!orderId || !amount) {
+          toast.error('Lỗi tạo đơn hàng. Vui lòng thử lại.');
+          setIsSubmitting(false);
+          return;
+        }
+
+        const token = localStorage.getItem('token');
+
+        try {
+          const res = await fetch('http://localhost:5000/api/payment/vnpay/create', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              orderId,
+              amount,
+              orderInfo: `Thanh toan don hang ${orderId}`
+            })
+          });
+
+          const data = await res.json();
+
+          if (data.success && data.data?.paymentUrl) {
+            window.location.href = data.data.paymentUrl;
+            return;
+          }
+
+          // Nếu tạo link thanh toán thất bại, hủy đơn hàng
+          toast.error('Không tạo được link thanh toán VNPay. Đơn hàng sẽ bị hủy.');
+          const cancelRes = await fetch(`http://localhost:5000/api/orders/${orderId}/cancel`, {
+            method: 'PUT',
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          if (cancelRes.ok) {
+            toast.success('Đơn hàng đã bị hủy do thanh toán thất bại');
+          }
+          navigate('/orders');
+          return;
+        } catch (fetchError) {
+          // Nếu fetch lỗi, hủy đơn hàng
+          toast.error('Lỗi kết nối VNPay. Đơn hàng sẽ bị hủy.');
+          await fetch(`http://localhost:5000/api/orders/${orderId}/cancel`, {
+            method: 'PUT',
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          navigate('/orders');
+          return;
+        }
+      }
+
+      // ===== COD =====
+      else {
+        await dispatch(createOrder(orderData));
+        toast.success('Đặt hàng thành công');
+        navigate('/orders');
+      }
+
+    } catch (err) {
+      toast.error(err.message || 'Lỗi đặt hàng');
     }
+
+    setIsSubmitting(false);
   };
+
+  // ===== UI =====
 
   if (cartLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+      <div className="flex justify-center items-center h-screen">
+        Loading...
       </div>
     );
   }
 
   if (items.length === 0) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-lg shadow-lg p-6 text-center">
-          <ShoppingBag className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">Giỏ hàng trống</h3>
-          <p className="text-gray-600 mb-6">Bạn chưa có sản phẩm nào trong giỏ hàng</p>
-          <Link
-            to="/products"
-            className="inline-flex items-center px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors"
-          >
-            <ShoppingBag className="w-5 h-5 mr-2" />
-            Mua sắm ngay
-          </Link>
-        </div>
+      <div className="text-center mt-20">
+        <ShoppingBag className="mx-auto mb-4" size={50} />
+        <p>Giỏ hàng trống</p>
+        <Link to="/products">Mua ngay</Link>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto p-6">
+      
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center">
-          <Link
-            to="/cart"
-            className="flex items-center text-purple-600 hover:text-purple-700 transition-colors mr-4"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Link>
-          <h1 className="text-3xl font-bold text-gray-900">Thanh toán</h1>
-        </div>
-        <div className="text-sm text-gray-600">
-          {itemCount} sản phẩm trong giỏ hàng
-        </div>
+      <div className="flex items-center mb-6">
+        <Link to="/cart"><ArrowLeft /></Link>
+        <h1 className="ml-4 text-2xl font-bold">Thanh toán</h1>
       </div>
 
-      <form onSubmit={handleSubmit}>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Forms */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Shipping Information */}
-            <ShippingForm
-              formData={formData}
-              selectedAddress={selectedAddress}
-              onChange={handleChange}
-              onShowAddressModal={() => setShowAddressModal(true)}
-            />
+      <form onSubmit={handleSubmit} className="grid lg:grid-cols-3 gap-6">
 
-            {/* Payment Method */}
-            <PaymentMethodSelector
-              selectedMethod={formData.paymentMethod}
-              onChange={handleChange}
-            />
-          </div>
+        {/* LEFT */}
+        <div className="lg:col-span-2 space-y-6">
 
-          {/* Right Column - Order Summary */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-lg p-6 sticky top-8">
-              <OrderSummary
-                items={items}
-                totalAmount={totalAmount}
-                itemCount={itemCount}
-              />
+          <ShippingForm
+            formData={formData}
+            selectedAddress={selectedAddress}
+            onChange={handleChange}
+            onShowAddressModal={() => setShowAddressModal(true)}
+          />
 
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full mt-6 px-6 py-4 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-              >
-                {isSubmitting ? (
-                  <>
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                    Đang xử lý...
-                  </>
-                ) : (
-                  'Đặt hàng ngay'
-                )}
-              </button>
+          <PaymentMethodSelector
+            selectedMethod={formData.paymentMethod}
+            onChange={handleChange}
+          />
 
-              {/* Security Note */}
-              <div className="mt-4 text-center text-xs text-gray-500">
-                <div className="flex items-center justify-center space-x-2">
-                  <Check className="w-4 h-4 text-green-600" />
-                  <span>Thông tin thanh toán được bảo mật</span>
-                </div>
-              </div>
-            </div>
+        </div>
+
+        {/* RIGHT */}
+        <div>
+          <OrderSummary
+            items={items}
+            totalAmount={totalAmount}
+            itemCount={itemCount}
+          />
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full mt-4 bg-purple-600 text-white py-3 rounded"
+          >
+            {isSubmitting ? 'Đang xử lý...' : 'Đặt hàng'}
+          </button>
+
+          <div className="text-center text-sm mt-2 flex justify-center items-center">
+            <Check className="mr-1 text-green-500" size={16} />
+            Bảo mật thanh toán
           </div>
         </div>
+
       </form>
 
-      {/* Address Select Modal */}
       <AddressSelectModal
         isOpen={showAddressModal}
         onClose={() => setShowAddressModal(false)}
         onSelectAddress={handleSelectAddress}
         selectedAddressId={selectedAddress?._id}
       />
+
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import React from 'react';
 import { X } from 'lucide-react';
 
-const Modal = ({ isOpen, onClose, title, children, size = 'md', className = '' }) => {
+const Modal = ({ isOpen, onClose, title, children, footer, size = 'md', className = '' }) => {
   if (!isOpen) return null;
 
   const sizeStyles = {
@@ -13,25 +13,33 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md', className = '' }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className={`bg-white rounded-lg shadow-xl w-full ${sizeStyles[size]} max-h-[90vh] overflow-y-auto ${className}`}>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-4 pt-10">
+      <div className={`bg-white rounded-lg shadow-xl w-full ${sizeStyles[size]} max-h-[80vh] flex flex-col relative ${className}`}>
+        {/* Close button - always visible */}
+        <button
+          onClick={onClose}
+          className="absolute top-2 right-2 z-10 text-white hover:text-gray-200 bg-purple-700 rounded-full p-1.5 transition-colors shadow-md"
+        >
+          <X className="w-5 h-5" />
+        </button>
         {/* Header */}
         {title && (
-          <div className="bg-purple-600 text-white px-6 py-4 flex items-center justify-between sticky top-0">
-            <h2 className="text-xl font-bold">{title}</h2>
-            <button
-              onClick={onClose}
-              className="text-white hover:text-gray-200 transition-colors"
-            >
-              <X className="w-6 h-6" />
-            </button>
+          <div className="bg-purple-600 text-white px-4 py-3 pr-10 rounded-t-lg flex-shrink-0">
+            <h2 className="text-lg font-bold">{title}</h2>
           </div>
         )}
 
         {/* Content */}
-        <div className="p-6">
+        <div className="p-4 overflow-y-auto flex-1 min-h-0">
           {children}
         </div>
+
+        {/* Footer (sticky) */}
+        {footer && (
+          <div className="px-4 py-3 border-t border-gray-200 bg-white flex-shrink-0">
+            {footer}
+          </div>
+        )}
       </div>
     </div>
   );

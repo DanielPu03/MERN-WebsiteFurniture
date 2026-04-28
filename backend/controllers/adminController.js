@@ -13,13 +13,13 @@ const updateUserRole = async (req, res) => {
   if (!user) {
     return res.status(404).json({
       success: false,
-      message: 'User not found'
+      message: 'Người dùng không tồn tại'
     });
   }
 
   res.status(200).json({
     success: true,
-    message: `User updated to ${role === 1 ? 'admin' : 'user'} successfully`,
+    message: `Người dùng đã được cập nhật thành ${role === 1 ? 'admin' : 'user'} successfully`,
     data: { user }
   });
 };

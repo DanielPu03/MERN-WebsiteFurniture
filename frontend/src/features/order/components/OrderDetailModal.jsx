@@ -1,5 +1,5 @@
 import React from 'react';
-import { Package, MapPin } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 import { formatPrice, formatDate } from '../../../shared/utils/formatters';
 import { ORDER_STATUS } from '../../../shared/constants';
 import Modal from '../../../shared/components/Modal';
@@ -31,114 +31,68 @@ const OrderDetailModal = ({ order, onClose }) => {
       onClose={onClose}
       title="Chi tiết đơn hàng"
       size="lg"
+      footer={
+        <div className="flex justify-between items-center">
+          <span className="text-lg font-bold text-gray-900">Tổng cộng</span>
+          <span className="text-2xl font-bold text-purple-600">{formatPrice(order.tongTien)}</span>
+        </div>
+      }
     >
-      <div className="space-y-6">
-        {/* Order Info */}
-        <div>
-          <h3 className="font-bold text-gray-900 mb-3">Thông tin đơn hàng</h3>
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="text-gray-600">Mã đơn hàng:</span>
-              <p className="font-medium">{order._id}</p>
-            </div>
-            <div>
-              <span className="text-gray-600">Ngày đặt:</span>
-              <p className="font-medium">{formatDate(order.ngayTao)}</p>
-            </div>
-            <div>
-              <span className="text-gray-600">Trạng thái:</span>
-              <p className="font-medium">{getStatusInfo(order.tinhTrang)}</p>
-            </div>
-            <div>
-              <span className="text-gray-600">Phương thức thanh toán:</span>
-              <p className="font-medium">Thanh toán khi nhận hàng (COD)</p>
-            </div>
+      <div className="space-y-3">
+        {/* Order & Customer Info - Compact */}
+        <div className="bg-gray-50 p-3 rounded-lg">
+          <h3 className="font-bold text-gray-900 text-sm mb-2">Thông tin đơn hàng</h3>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+            <div><span className="text-gray-500">Mã:</span> <span className="font-medium">{order._id?.slice(-8)}</span></div>
+            <div><span className="text-gray-500">Ngày:</span> <span className="font-medium">{formatDate(order.ngayTao)}</span></div>
+            <div><span className="text-gray-500">Trạng thái:</span> <span className="font-medium">{getStatusInfo(order.tinhTrang)}</span></div>
+            <div><span className="text-gray-500">Thanh toán:</span> <span className="font-medium">{order.phuongThucThanhToan === 'VNPAY' ? 'VNPay' : 'COD'}</span></div>
           </div>
         </div>
 
-        {/* Customer Info */}
-        <div>
-          <h3 className="font-bold text-gray-900 mb-3">Thông tin khách hàng</h3>
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="text-gray-600">Họ tên:</span>
-              <p className="font-medium">{order.nguoiDungId?.hoTen || 'N/A'}</p>
-            </div>
-            <div>
-              <span className="text-gray-600">Email:</span>
-              <p className="font-medium">{order.nguoiDungId?.email || 'N/A'}</p>
-            </div>
-            <div>
-              <span className="text-gray-600">SĐT:</span>
-              <p className="font-medium">{order.nguoiDungId?.soDienThoai || 'N/A'}</p>
-            </div>
+        {/* Customer Info - Compact */}
+        <div className="bg-gray-50 p-3 rounded-lg">
+          <h3 className="font-bold text-gray-900 text-sm mb-2">Khách hàng</h3>
+          <div className="grid grid-cols-3 gap-x-4 gap-y-1 text-xs">
+            <div><span className="text-gray-500">Tên:</span> <span className="font-medium">{order.nguoiDungId?.hoTen || 'N/A'}</span></div>
+            <div><span className="text-gray-500">Email:</span> <span className="font-medium">{order.nguoiDungId?.email || 'N/A'}</span></div>
+            <div><span className="text-gray-500">SĐT:</span> <span className="font-medium">{order.nguoiDungId?.soDienThoai || 'N/A'}</span></div>
           </div>
         </div>
 
-        {/* Products */}
+        {/* Products - Scrollable like OrderSummary */}
         <div>
-          <h3 className="font-bold text-gray-900 mb-3">Sản phẩm</h3>
-          <div className="border rounded-lg overflow-hidden">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Hình ảnh</th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Sản phẩm</th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Số lượng</th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Đơn giá</th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Thành tiền</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {order.chiTietDonHang?.map((item, index) => (
-                  <tr key={index}>
-                    <td className="px-4 py-2">
-                      <div className="w-12 h-12 flex-shrink-0">
-                        <Image
-                          src={item.sanPhamId?.hinhAnh}
-                          alt={item.sanPhamId?.tenSanPham}
-                          className="w-full h-full object-cover rounded"
-                        />
-                      </div>
-                    </td>
-                    <td className="px-4 py-2 text-sm text-gray-900">
-                      {item.sanPhamId?.tenSanPham || 'N/A'}
-                    </td>
-                    <td className="px-4 py-2 text-sm text-gray-900">{item.soLuong}</td>
-                    <td className="px-4 py-2 text-sm text-gray-900">{formatPrice(item.gia)}</td>
-                    <td className="px-4 py-2 text-sm text-gray-900">{formatPrice(item.soLuong * item.gia)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <h3 className="font-bold text-gray-900 text-sm mb-2">Sản phẩm ({order.chiTietDonHang?.length || 0})</h3>
+          <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+            {order.chiTietDonHang?.map((item, index) => (
+              <div key={index} className="flex items-center space-x-3 bg-gray-50 p-2 rounded">
+                <div className="flex-shrink-0 h-12 w-12">
+                  <Image
+                    src={item.sanPhamId?.hinhAnh}
+                    alt={item.sanPhamId?.tenSanPham}
+                    className="h-12 w-12 rounded object-cover"
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="text-xs font-medium text-gray-900 truncate">{item.sanPhamId?.tenSanPham || 'N/A'}</h4>
+                  <p className="text-xs text-gray-500">SL: {item.soLuong}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs font-semibold text-gray-900">{formatPrice(item.soLuong * item.gia)}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Shipping Info */}
-        <div>
-          <h3 className="font-bold text-gray-900 mb-3">Thông tin giao hàng</h3>
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <div className="flex items-start space-x-2">
-              <MapPin className="w-4 h-4 text-gray-600 mt-0.5" />
-              <span className="text-sm">{order.diaChiGiaoHang}</span>
-            </div>
+        {/* Shipping & Notes - Compact */}
+        <div className="bg-gray-50 p-3 rounded-lg">
+          <h3 className="font-bold text-gray-900 text-sm mb-1">Giao hàng & Ghi chú</h3>
+          <div className="flex items-start space-x-1 mb-1">
+            <MapPin className="w-3 h-3 text-gray-600 mt-0.5 flex-shrink-0" />
+            <span className="text-xs text-gray-700">{order.diaChiGiaoHang}</span>
           </div>
-        </div>
-
-        {/* Customer Notes */}
-        <div>
-          <h3 className="font-bold text-gray-900 mb-3">Ghi chú</h3>
-          <div className="bg-yellow-50 p-4 rounded-lg">
-            <p className="text-sm text-gray-700">{order.ghiChu || 'Không có ghi chú'}</p>
-          </div>
-        </div>
-
-        {/* Total */}
-        <div className="border-t pt-4">
-          <div className="flex justify-between items-center">
-            <span className="text-lg font-bold text-gray-900">Tổng cộng</span>
-            <span className="text-2xl font-bold text-purple-600">{formatPrice(order.tongTien)}</span>
-          </div>
+          <p className="text-xs text-gray-500 italic">{order.ghiChu || 'Không có ghi chú'}</p>
         </div>
       </div>
     </Modal>

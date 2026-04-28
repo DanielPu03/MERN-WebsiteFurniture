@@ -168,12 +168,19 @@ const changePassword = async (req, res) => {
   // Get user with password
   const user = await User.findById(req.user._id).select('+matKhau');
 
+  if (!user) {
+    return res.status(404).json({
+      success: false,
+      message: 'Người dùng không tồn tại'
+    });
+  }
+
   // Check current password
   const isMatch = await user.comparePassword(matKhauCu);
   if (!isMatch) {
     return res.status(400).json({
       success: false,
-      message: 'Current password is incorrect'
+      message: 'Mật khẩu hiện tại không đúng'
     });
   }
 
@@ -183,7 +190,7 @@ const changePassword = async (req, res) => {
 
   res.status(200).json({
     success: true,
-    message: 'Password changed successfully'
+    message: 'Mật khẩu đã được thay đổi thành công'
   });
 };
 
