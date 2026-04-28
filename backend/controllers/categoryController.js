@@ -5,9 +5,27 @@ const SanPham = require('../models/SanPham');
 const getAllCategories = async (req, res) => {
   const categories = await DanhMuc.find().sort({ ngayTao: 1 });
 
+  // Count products for each category
+  const categoryIds = categories.map(c => c._id);
+  const productCounts = await SanPham.aggregate([
+    { $match: { danhMucId: { $in: categoryIds }, trangThai: true } },
+    { $group: { _id: '$danhMucId', count: { $sum: 1 } } }
+  ]);
+
+  const countMap = {};
+  productCounts.forEach(pc => {
+    countMap[pc._id.toString()] = pc.count;
+  });
+
+  // Add product count to each category
+  const categoriesWithCount = categories.map(category => ({
+    ...category.toObject(),
+    soLuongSanPham: countMap[category._id.toString()] || 0
+  }));
+
   res.status(200).json({
     success: true,
-    data: { categories }
+    data: { categories: categoriesWithCount }
   });
 };
 
