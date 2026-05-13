@@ -19,7 +19,6 @@ const PaymentMethodSelector = ({ selectedMethod, onChange }) => {
           <Truck className="w-5 h-5 text-purple-600 mr-3" />
           <div>
             <span className="block font-medium text-gray-900">Thanh toán khi nhận hàng (COD)</span>
-            <span className="block text-sm text-gray-600">Thanh toán tiền mặt khi nhận sản phẩm</span>
           </div>
         </label>
 
@@ -34,8 +33,7 @@ const PaymentMethodSelector = ({ selectedMethod, onChange }) => {
           />
           <Smartphone className="w-5 h-5 text-purple-600 mr-3" />
           <div>
-            <span className="block font-medium text-gray-900">VNPay QR Code</span>
-            <span className="block text-sm text-gray-600">Quét mã QR để thanh toán qua VNPay</span>
+            <span className="block font-medium text-gray-900">Thanh toán VNPay</span>
           </div>
         </label>
       </div>

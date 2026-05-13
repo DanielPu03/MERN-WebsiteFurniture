@@ -54,12 +54,6 @@ const productAPI = {
     return response.data;
   },
 
-  // Get products by brand
-  getProductsByBrand: async (brandId, filters = {}) => {
-    const response = await axiosClient.get(API_ENDPOINTS.PRODUCTS.GET_BY_BRAND.replace(':id', brandId), { params: filters });
-    return response.data;
-  },
-
   // Get related products
   getRelatedProducts: async (productId, limit = 4) => {
     const response = await axiosClient.get(API_ENDPOINTS.PRODUCTS.GET_RELATED.replace(':id', productId), { params: { limit } });
@@ -84,7 +78,7 @@ const productAPI = {
     return response.data;
   },
 
-  // Get on sale products
+  // Get on  products
   getOnSaleProducts: async (limit = 8) => {
     const response = await axiosClient.get(API_ENDPOINTS.PRODUCTS.GET_ON_SALE, { params: { limit } });
     return response.data;

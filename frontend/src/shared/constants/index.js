@@ -27,16 +27,7 @@ export const API_ENDPOINTS = {
     UPDATE: '/categories/:id',
     DELETE: '/categories/:id',
   },
-  
-  // Brands
-  BRANDS: {
-    GET_ALL: '/brands',
-    GET_BY_ID: '/brands/:id',
-    CREATE: '/brands',
-    UPDATE: '/brands/:id',
-    DELETE: '/brands/:id',
-  },
-  
+
   // Collections
   COLLECTIONS: {
     GET_ALL: '/collections',
@@ -169,8 +160,6 @@ export const VALIDATION_RULES = {
   PRODUCT_DESCRIPTION_MAX_LENGTH: 500,
   CATEGORY_NAME_MAX_LENGTH: 100,
   CATEGORY_DESCRIPTION_MAX_LENGTH: 255,
-  BRAND_NAME_MAX_LENGTH: 100,
-  BRAND_DESCRIPTION_MAX_LENGTH: 255,
   COLLECTION_NAME_MAX_LENGTH: 100,
   COLLECTION_DESCRIPTION_MAX_LENGTH: 500,
   SHIPPING_UNIT_MAX_LENGTH: 100,
@@ -188,7 +177,6 @@ export const PAGINATION = {
 export const IMAGE_URLS = {
   DEFAULT_PRODUCT: '/images/default-product.jpg',
   DEFAULT_CATEGORY: '/images/default-category.jpg',
-  DEFAULT_BRAND: '/images/default-brand.jpg',
   DEFAULT_COLLECTION: '/images/default-collection.jpg',
   DEFAULT_USER: '/images/default-user.jpg',
 };

@@ -2,17 +2,16 @@ import React from 'react';
 import { X } from 'lucide-react';
 import ProductForm from './ProductForm';
 
-const ProductModal = ({ 
-  isOpen, 
-  onClose, 
-  onSave, 
-  formData, 
-  setFormData, 
-  categories, 
-  brands, 
-  collections, 
+const ProductModal = ({
+  isOpen,
+  onClose,
+  onSave,
+  formData,
+  setFormData,
+  categories,
+  collections,
   isEdit,
-  loading 
+  loading
 }) => {
   if (!isOpen) return null;
 
@@ -39,7 +38,6 @@ const ProductModal = ({
               formData={formData}
               setFormData={setFormData}
               categories={categories}
-              brands={brands}
               collections={collections}
               isEdit={isEdit}
             />

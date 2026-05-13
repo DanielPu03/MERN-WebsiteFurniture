@@ -74,7 +74,7 @@ const getProductsByCategory = async (req, res) => {
 
     const products = await SanPham.find(query)
       .populate('danhMucId', 'tenDanhMuc')
-      .populate('thuongHieuId', 'tenThuongHieu')
+      .populate('boSuuTapIds', 'tenBoSuuTap')
       .limit(parseInt(limit))
       .sort({ ngayTao: -1 });
 

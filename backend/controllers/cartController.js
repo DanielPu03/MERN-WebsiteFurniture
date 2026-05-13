@@ -1,7 +1,7 @@
 const GioHang = require('../models/GioHang');
 const SanPham = require('../models/SanPham');
 
-// @desc    Get user's cart
+//    Get user's cart
 const getCart = async (req, res) => {
   let cart = await GioHang.findOne({ nguoiDungId: req.user._id })
     .populate('danhSachSanPham.sanPhamId', 'tenSanPham gia hinhAnh soLuongTon trangThai');
@@ -19,7 +19,7 @@ const getCart = async (req, res) => {
   });
 };
 
-// @desc    Add item to cart
+//    Add item to cart
 const addToCart = async (req, res) => {
   try {
     const { sanPhamId, soLuong } = req.body;

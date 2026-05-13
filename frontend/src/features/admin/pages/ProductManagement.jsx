@@ -9,7 +9,6 @@ import Pagination from '../../../shared/components/Pagination';
 const ProductManagement = () => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [brands, setBrands] = useState([]);
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -25,7 +24,6 @@ const ProductManagement = () => {
     gia: '',
     soLuongTon: '',
     danhMucId: '',
-    thuongHieuId: '',
     boSuuTapIds: [],
     moTa: '',
     trangThai: true,
@@ -38,7 +36,6 @@ const ProductManagement = () => {
   useEffect(() => {
     loadProducts();
     loadCategories();
-    loadBrands();
     loadCollections();
   }, [currentPage, searchTerm, statusFilter]);
 
@@ -90,24 +87,6 @@ const ProductManagement = () => {
         // Handle response structure - backend returns { data: { categories } }
         const categoriesList = data.data.categories || data.data || [];
         setCategories(categoriesList);
-      } else {
-      }
-    } catch (error) {
-    }
-  };
-
-  const loadBrands = async () => {
-    try {
-      const response = await fetch('http://localhost:5000/api/brands', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      const data = await response.json();
-      if (data.success) {
-        // Handle response structure - backend returns { data: { brands } }
-        const brandsList = data.data.brands || data.data || [];
-        setBrands(brandsList);
       } else {
       }
     } catch (error) {
@@ -521,7 +500,6 @@ const ProductManagement = () => {
           formData={formData}
           setFormData={setFormData}
           categories={categories}
-          brands={brands}
           collections={collections}
           isEdit={isEdit}
           loading={saving}

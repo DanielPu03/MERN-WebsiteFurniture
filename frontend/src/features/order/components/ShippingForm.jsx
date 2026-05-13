@@ -37,104 +37,34 @@ const ShippingForm = ({ formData, selectedAddress, onChange, onShowAddressModal 
             </div>
           </div>
         </div>
-      ) : null}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Họ tên *</label>
-          <input
-            type="text"
-            name="fullName"
-            value={formData.fullName}
-            onChange={onChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            required
-          />
+      ) : (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+          <div className="flex items-start">
+            <MapPin className="w-5 h-5 text-yellow-600 mr-3 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-yellow-800">Chưa chọn địa chỉ giao hàng</p>
+              <button
+                type="button"
+                onClick={onShowAddressModal}
+                className="mt-2 text-purple-600 hover:text-purple-700 text-sm font-medium underline"
+              >
+                Chọn địa chỉ ngay
+              </button>
+            </div>
+          </div>
         </div>
+      )}
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Số điện thoại *</label>
-          <input
-            type="tel"
-            name="phone"
-            value={formData.phone}
-            onChange={onChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={onChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Thành phố/Tỉnh *</label>
-          <input
-            type="text"
-            name="city"
-            value={formData.city}
-            onChange={onChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Quận/Huyện *</label>
-          <input
-            type="text"
-            name="district"
-            value={formData.district}
-            onChange={onChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Phường/Xã *</label>
-          <input
-            type="text"
-            name="ward"
-            value={formData.ward}
-            onChange={onChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            required
-          />
-        </div>
-
-        <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Địa chỉ cụ thể *</label>
-          <input
-            type="text"
-            name="address"
-            value={formData.address}
-            onChange={onChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            required
-          />
-        </div>
-
-        <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Ghi chú</label>
-          <textarea
-            name="notes"
-            value={formData.notes}
-            onChange={onChange}
-            rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            placeholder="Ghi chú cho đơn hàng (tùy chọn)"
-          />
-        </div>
+      <div className="md:col-span-2">
+        <label className="block text-sm font-medium text-gray-700 mb-1">Ghi chú</label>
+        <textarea
+          name="notes"
+          value={formData.notes}
+          onChange={onChange}
+          rows={3}
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          placeholder="Ghi chú cho đơn hàng (tùy chọn)"
+        />
       </div>
     </div>
   );

@@ -8,7 +8,7 @@ const generateToken = (id) => {
   });
 };
 
-// @desc    Register user
+//   Register user
 const register = async (req, res) => {
   const { hoTen, email, matKhau, soDienThoai } = req.body;
 
@@ -50,7 +50,7 @@ const register = async (req, res) => {
   });
 };
 
-// @desc    Login user
+//    Login user
 const login = async (req, res) => {
   const { email, matKhau } = req.body;
 
@@ -109,7 +109,7 @@ const login = async (req, res) => {
   });
 };
 
-// @desc    Get current user
+//    Get current user
 const getMe = async (req, res) => {
   res.status(200).json({
     success: true,
@@ -128,7 +128,7 @@ const getMe = async (req, res) => {
   });
 };
 
-// @desc    Update user profile
+//      Update user profile
 const updateProfile = async (req, res) => {
   const { hoTen, soDienThoai, diaChi } = req.body;
 
@@ -161,7 +161,7 @@ const updateProfile = async (req, res) => {
   });
 };
 
-// @desc    Change password
+//      Change password
 const changePassword = async (req, res) => {
   const { matKhauCu, matKhauMoi } = req.body;
 

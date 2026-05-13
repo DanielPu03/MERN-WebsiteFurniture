@@ -79,7 +79,6 @@ const donHangSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Calculate total before saving
 donHangSchema.pre('save', function(next) {
   if (this.isModified('chiTietDonHang')) {
     this.tongTien = this.chiTietDonHang.reduce((total, item) => {

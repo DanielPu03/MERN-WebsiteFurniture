@@ -166,7 +166,6 @@ const initialState = {
   filters: {
     search: '',
     category: '',
-    brand: '',
     minPrice: '',
     maxPrice: '',
     sortBy: 'createdAt',

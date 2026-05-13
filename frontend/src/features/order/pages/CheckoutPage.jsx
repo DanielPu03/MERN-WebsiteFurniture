@@ -39,15 +39,22 @@ const CheckoutPage = () => {
 
   // Load user
   useEffect(() => {
-    const userLocal = JSON.parse(localStorage.getItem('user'));
-    if (userLocal) {
-      setFormData(prev => ({
-        ...prev,
-        fullName: userLocal.tenNguoiDung || '',
-        email: userLocal.email || '',
-        phone: userLocal.soDienThoai || '',
-        address: userLocal.diaChi || '',
-      }));
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
+        const userLocal = JSON.parse(userStr);
+        if (userLocal) {
+          setFormData(prev => ({
+            ...prev,
+            fullName: userLocal.tenNguoiDung || '',
+            email: userLocal.email || '',
+            phone: userLocal.soDienThoai || '',
+            address: userLocal.diaChi || '',
+          }));
+        }
+      } catch (error) {
+        console.error('Error parsing user from localStorage:', error);
+      }
     }
   }, []);
 
@@ -104,12 +111,10 @@ const CheckoutPage = () => {
   };
 
   const validateForm = () => {
-    if (!formData.fullName) return toast.error('Nhập họ tên'), false;
-    if (!formData.phone) return toast.error('Nhập SĐT'), false;
-    if (!formData.email) return toast.error('Nhập email'), false;
-    if (!formData.address) return toast.error('Nhập địa chỉ'), false;
-    if (!formData.city) return toast.error('Nhập tỉnh'), false;
-    if (!formData.district) return toast.error('Nhập quận'), false;
+    if (!selectedAddress) {
+      toast.error('Vui lòng chọn địa chỉ giao hàng');
+      return false;
+    }
     return true;
   };
 
@@ -126,14 +131,7 @@ const CheckoutPage = () => {
     setIsSubmitting(true);
 
     try {
-      const addr = selectedAddress || {
-        tenNguoiNhan: formData.fullName,
-        soDienThoai: formData.phone,
-        diaChiCuThe: formData.address,
-        phuongXa: formData.ward,
-        quanHuyen: formData.district,
-        tinhThanh: formData.city
-      };
+      const addr = selectedAddress;
 
       const orderData = {
         nguoiDungId: user._id,

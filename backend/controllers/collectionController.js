@@ -65,7 +65,7 @@ const getCollectionById = async (req, res) => {
         path: 'sanPhams',
         populate: [
           { path: 'danhMucId', select: 'tenDanhMuc' },
-          { path: 'thuongHieuId', select: 'tenThuongHieu' }
+          { path: 'boSuuTapIds', select: 'tenBoSuuTap' }
         ]
       });
 

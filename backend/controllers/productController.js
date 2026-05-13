@@ -1,6 +1,5 @@
 const SanPham = require('../models/SanPham');
 const DanhMuc = require('../models/DanhMuc');
-const ThuongHieu = require('../models/ThuongHieu');
 const BoSuuTap = require('../models/BoSuuTap');
 const multer = require('multer');
 const path = require('path');
@@ -59,7 +58,6 @@ const getProducts = async (req, res) => {
       page = 1,
       limit = 12,
       category,
-      brand,
       collection,
       minPrice,
       maxPrice,
@@ -99,14 +97,6 @@ const getProducts = async (req, res) => {
       const danhMuc = await DanhMuc.findOne({ tenDanhMuc: category });
       if (danhMuc) {
         query.danhMucId = danhMuc._id;
-      }
-    }
-
-    // Brand filter
-    if (brand) {
-      const thuongHieu = await ThuongHieu.findOne({ tenThuongHieu: brand });
-      if (thuongHieu) {
-        query.thuongHieuId = thuongHieu._id;
       }
     }
 
@@ -161,7 +151,6 @@ const getProducts = async (req, res) => {
 
     const products = await SanPham.find(query)
       .populate('danhMucId', 'tenDanhMuc')
-      .populate('thuongHieuId', 'tenThuongHieu')
       .populate('boSuuTapIds', 'tenBoSuuTap')
       .sort(sortOptions)
       .limit(limit * 1)
@@ -193,7 +182,6 @@ const getProductById = async (req, res) => {
   try {
     const product = await SanPham.findById(req.params.id)
       .populate('danhMucId', 'tenDanhMuc')
-      .populate('thuongHieuId', 'tenThuongHieu')
       .populate('boSuuTapIds', 'tenBoSuuTap');
 
     if (!product) {
@@ -222,7 +210,6 @@ const createProduct = async (req, res) => {
       gia,
       soLuongTon,
       danhMucId,
-      thuongHieuId,
       boSuuTapIds,
       moTa,
       hinhAnh
@@ -235,17 +222,6 @@ const createProduct = async (req, res) => {
         success: false,
         message: 'Category not found'
       });
-    }
-
-    // Validate brand if provided
-    if (thuongHieuId) {
-      const thuongHieu = await ThuongHieu.findById(thuongHieuId);
-      if (!thuongHieu) {
-        return res.status(400).json({
-          success: false,
-          message: 'Brand not found'
-        });
-      }
     }
 
     // Validate collections if provided
@@ -273,7 +249,6 @@ const createProduct = async (req, res) => {
       gia,
       soLuongTon,
       danhMucId,
-      thuongHieuId,
       boSuuTapIds,
       moTa,
       hinhAnh: processedImages
@@ -281,7 +256,6 @@ const createProduct = async (req, res) => {
 
     const populatedProduct = await SanPham.findById(product._id)
       .populate('danhMucId', 'tenDanhMuc')
-      .populate('thuongHieuId', 'tenThuongHieu')
       .populate('boSuuTapIds', 'tenBoSuuTap');
 
     res.status(201).json({
@@ -299,7 +273,7 @@ const createProduct = async (req, res) => {
 
 const updateProduct = async (req, res) => {
   try {
-    const { hinhAnh, thuongHieuId, boSuuTapIds, ...otherData } = req.body;
+    const { hinhAnh, boSuuTapIds, ...otherData } = req.body;
 
     // Validate collections if provided
     if (boSuuTapIds && boSuuTapIds.length > 0) {
@@ -321,20 +295,8 @@ const updateProduct = async (req, res) => {
       }));
     }
 
-    // Validate brand (optional)
-    if (thuongHieuId && thuongHieuId !== '') {
-      const thuongHieu = await ThuongHieu.findById(thuongHieuId);
-      if (!thuongHieu) {
-        return res.status(400).json({
-          success: false,
-          message: 'Brand not found'
-        });
-      }
-    }
-
     const updateData = {
       ...otherData,
-      thuongHieuId: thuongHieuId ? thuongHieuId : undefined,
       boSuuTapIds: boSuuTapIds || [],
     };
 
@@ -348,7 +310,6 @@ const updateProduct = async (req, res) => {
       updateData,
       { new: true, runValidators: true }
     ).populate('danhMucId', 'tenDanhMuc')
-     .populate('thuongHieuId', 'tenThuongHieu')
      .populate('boSuuTapIds', 'tenBoSuuTap');
 
     if (!product) {
@@ -453,7 +414,6 @@ const getRelatedProducts = async (req, res) => {
       trangThai: true
     })
     .populate('danhMucId', 'tenDanhMuc')
-    .populate('thuongHieuId', 'tenThuongHieu')
     .populate('boSuuTapIds', 'tenBoSuuTap')
     .limit(6);
 

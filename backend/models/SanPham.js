@@ -11,7 +11,6 @@ const hinhAnhSanPhamSchema = new mongoose.Schema({
   }
 }, { _id: false });
 
-// Custom schema that accepts both string and object
 const hinhAnhFlexibleSchema = new mongoose.Schema({}, { _id: false, discriminatorKey: 'type' });
 
 hinhAnhFlexibleSchema.add({
@@ -19,31 +18,25 @@ hinhAnhFlexibleSchema.add({
   laAnhChinh: { type: Boolean, default: false }
 });
 
-// Alternative: Use mixed type with custom validation
 const hinhAnhMixedSchema = {
   type: mongoose.Schema.Types.Mixed,
   validate: {
     validator: function(value) {
-      // Accept empty string (will be handled by middleware)
       if (typeof value === 'string') {
-        return true; // Accept any string including empty
+        return true; 
       }
-      // Accept array of strings or objects
       if (Array.isArray(value)) {
-        if (value.length === 0) return true; // Accept empty array
+        if (value.length === 0) return true; 
         return value.every(item => {
-          // Accept string URL
           if (typeof item === 'string') {
-            return true; // Accept any string
+            return true; 
           }
-          // Accept object with url property
           if (typeof item === 'object' && item !== null) {
-            return !item.url || (typeof item.url === 'string'); // Accept any url or missing url
+            return !item.url || (typeof item.url === 'string'); 
           }
           return false;
         });
       }
-      // Accept null/undefined (will be handled by middleware)
       if (value === null || value === undefined) {
         return true;
       }
@@ -75,10 +68,6 @@ const sanPhamSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'DanhMuc',
     required: true
-  },
-  thuongHieuId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'ThuongHieu'
   },
   boSuuTapIds: [{
     type: mongoose.Schema.Types.ObjectId,

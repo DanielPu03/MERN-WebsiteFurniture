@@ -1,7 +1,7 @@
 import React from 'react';
 import { Upload, X, Image as ImageIcon } from 'lucide-react';
 
-const ProductForm = ({ formData, setFormData, categories, brands, collections, isEdit }) => {
+const ProductForm = ({ formData, setFormData, categories, collections, isEdit }) => {
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
     const newImages = files.map(file => ({
@@ -93,25 +93,6 @@ const ProductForm = ({ formData, setFormData, categories, brands, collections, i
           {categories.map((cat) => (
             <option key={cat._id} value={cat._id}>
               {cat.tenDanhMuc}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Brand */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Thương hiệu
-        </label>
-        <select
-          value={formData.thuongHieuId}
-          onChange={(e) => setFormData({ ...formData, thuongHieuId: e.target.value })}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-        >
-          <option value="">Chọn thương hiệu</option>
-          {brands.map((brand) => (
-            <option key={brand._id} value={brand._id}>
-              {brand.tenThuongHieu}
             </option>
           ))}
         </select>
