@@ -177,8 +177,8 @@ const getDashboardStats = async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(5);
 
-    // Low stock products (less than 10)
-    const lowStockProducts = await SanPham.find({ soLuongTon: { $lt: 10 } })
+    // Low stock products
+    const lowStockProducts = await SanPham.find({ soLuongTon: { $lt: 5 } })
       .limit(5);
 
     res.status(200).json({
