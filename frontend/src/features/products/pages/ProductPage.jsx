@@ -43,7 +43,7 @@ const ProductPage = () => {
   React.useEffect(() => {
     const loadCategories = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/categories');
+        const response = await fetch('https://mern-websitefurniture.onrender.com/api/categories');
         const data = await response.json();
         if (data.success) {
           setCategories(data.data.categories || data.data || []);

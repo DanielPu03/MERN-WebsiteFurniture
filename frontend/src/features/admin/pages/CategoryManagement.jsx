@@ -25,7 +25,7 @@ const CategoryManagement = () => {
   const loadCategories = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5000/api/categories', {
+      const response = await fetch('https://mern-websitefurniture.onrender.com/api/categories', {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -52,7 +52,7 @@ const CategoryManagement = () => {
   const handleAddCategory = async () => {
     try {
       setSaving(true);
-      const response = await fetch('http://localhost:5000/api/categories', {
+      const response = await fetch('https://mern-websitefurniture.onrender.com/api/categories', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -80,7 +80,7 @@ const CategoryManagement = () => {
   const handleUpdateCategory = async () => {
     try {
       setSaving(true);
-      const response = await fetch(`http://localhost:5000/api/categories/${selectedCategory._id}`, {
+      const response = await fetch(`https://mern-websitefurniture.onrender.com/api/categories/${selectedCategory._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -109,7 +109,7 @@ const CategoryManagement = () => {
     if (!window.confirm('Bạn có chắc chắn muốn xóa danh mục này?')) return;
 
     try {
-      const response = await fetch(`http://localhost:5000/api/categories/${categoryId}`, {
+      const response = await fetch(`https://mern-websitefurniture.onrender.com/api/categories/${categoryId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`

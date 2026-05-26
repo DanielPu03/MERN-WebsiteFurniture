@@ -17,7 +17,7 @@ const WishlistManagement = () => {
   const loadWishlists = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:5000/api/wishlist/all?search=${searchTerm}`, {
+      const response = await fetch(`https://mern-websitefurniture.onrender.com/api/wishlist/all?search=${searchTerm}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -40,7 +40,7 @@ const WishlistManagement = () => {
       // Extract wishlistId and sanPhamId from the combined ID
       const [actualWishlistId, sanPhamId] = wishlistId.split('_');
       
-      const response = await fetch(`http://localhost:5000/api/wishlist/admin/${actualWishlistId}/${sanPhamId}`, {
+      const response = await fetch(`https://mern-websitefurniture.onrender.com/api/wishlist/admin/${actualWishlistId}/${sanPhamId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`

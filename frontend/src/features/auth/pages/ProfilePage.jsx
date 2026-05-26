@@ -45,7 +45,7 @@ const ProfilePage = () => {
   const loadAddresses = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/addresses', {
+      const response = await fetch('https://mern-websitefurniture.onrender.com/api/addresses', {
         headers: {
           'Authorization': `Bearer ${token}`
         }

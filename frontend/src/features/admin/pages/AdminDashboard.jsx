@@ -34,7 +34,7 @@ const AdminDashboard = () => {
   const loadDashboardStats = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:5000/api/admin/dashboard/stats?period=${timeFilter}`, {
+      const response = await fetch(`https://mern-websitefurniture.onrender.com/api/admin/dashboard/stats?period=${timeFilter}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }

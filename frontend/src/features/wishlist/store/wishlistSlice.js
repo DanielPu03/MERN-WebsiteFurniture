@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { API_BASE_URL } from '../../../app/axiosClient';
 
-const API_BASE = 'http://localhost:5000/api/wishlist';
+const API_BASE = `${API_BASE_URL}/wishlist`;
 
 // Async thunks
 export const getWishlist = createAsyncThunk(

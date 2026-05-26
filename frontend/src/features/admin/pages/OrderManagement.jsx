@@ -23,7 +23,7 @@ const OrderManagement = () => {
   const loadOrders = async (page = 1) => {
     try {
       setLoading(true);
-      let url = `http://localhost:5000/api/orders/admin/all?page=${page}&limit=10`;
+      let url = `https://mern-websitefurniture.onrender.com/api/orders/admin/all?page=${page}&limit=10`;
 
       // Add filters to URL
       if (searchTerm) {
@@ -57,7 +57,7 @@ const OrderManagement = () => {
 
   const handleUpdateStatus = async (orderId, newStatus) => {
     try {
-      const response = await axios.put(`http://localhost:5000/api/orders/${orderId}/status`, 
+      const response = await axios.put(`https://mern-websitefurniture.onrender.com/api/orders/${orderId}/status`, 
         { tinhTrang: newStatus },
         {
           headers: {

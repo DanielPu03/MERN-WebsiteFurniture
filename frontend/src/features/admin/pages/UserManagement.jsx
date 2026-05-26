@@ -27,7 +27,7 @@ const UserManagement = () => {
   const loadUsers = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:5000/api/users?search=${searchTerm}`, {
+      const response = await fetch(`https://mern-websitefurniture.onrender.com/api/users?search=${searchTerm}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -48,7 +48,7 @@ const UserManagement = () => {
   const handleUpdateUser = async () => {
     try {
       setSaving(true);
-      const response = await fetch(`http://localhost:5000/api/users/${selectedUser._id}`, {
+      const response = await fetch(`https://mern-websitefurniture.onrender.com/api/users/${selectedUser._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -77,7 +77,7 @@ const UserManagement = () => {
     if (!window.confirm('Bạn có chắc chắn muốn xóa người dùng này?')) return;
 
     try {
-      const response = await fetch(`http://localhost:5000/api/users/${userId}`, {
+      const response = await fetch(`https://mern-websitefurniture.onrender.com/api/users/${userId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`

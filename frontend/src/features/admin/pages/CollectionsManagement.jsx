@@ -27,7 +27,7 @@ const CollectionsManagement = () => {
   const loadCollections = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5000/api/collections', {
+      const response = await fetch('https://mern-websitefurniture.onrender.com/api/collections', {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -60,7 +60,7 @@ const CollectionsManagement = () => {
         hinhAnh: urlImages.map(img => ({ url: img.url, laAnhChinh: img.laAnhChinh }))
       };
 
-      const response = await fetch('http://localhost:5000/api/collections', {
+      const response = await fetch('https://mern-websitefurniture.onrender.com/api/collections', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -109,7 +109,7 @@ const CollectionsManagement = () => {
         hinhAnh: allImages
       };
 
-      const response = await fetch(`http://localhost:5000/api/collections/${selectedCollection._id}`, {
+      const response = await fetch(`https://mern-websitefurniture.onrender.com/api/collections/${selectedCollection._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -142,7 +142,7 @@ const CollectionsManagement = () => {
     if (!window.confirm('Bạn có chắc chắn muốn xóa bộ sưu tập này?')) return;
 
     try {
-      const response = await fetch(`http://localhost:5000/api/collections/${collectionId}`, {
+      const response = await fetch(`https://mern-websitefurniture.onrender.com/api/collections/${collectionId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -201,7 +201,7 @@ const CollectionsManagement = () => {
     });
 
     try {
-      const response = await fetch(`http://localhost:5000/api/collections/${collectionId}/images`, {
+      const response = await fetch(`https://mern-websitefurniture.onrender.com/api/collections/${collectionId}/images`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`

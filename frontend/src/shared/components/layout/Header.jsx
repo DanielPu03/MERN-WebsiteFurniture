@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, User, Search, Menu, X, Heart, Check, ChevronDown } from 'lucide-react';
 import { useAuth, useCart } from '../../hooks/useRedux';
+import { API_BASE_URL } from '../../../app/axiosClient';
 
 const Header = () => {
   const { user, isAuthenticated, dispatch, logout } = useAuth();
@@ -40,7 +41,7 @@ const Header = () => {
   useEffect(() => {
     const loadCategories = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/categories');
+        const response = await fetch(`${API_BASE_URL}/categories`);
         const data = await response.json();
         if (data.success) {
           const categoriesList = data.data.categories || data.data || [];

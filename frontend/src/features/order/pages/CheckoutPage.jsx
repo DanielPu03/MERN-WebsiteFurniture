@@ -63,7 +63,7 @@ const CheckoutPage = () => {
     const loadDefaultAddress = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch('http://localhost:5000/api/addresses', {
+        const res = await fetch('https://mern-websitefurniture.onrender.com/api/addresses', {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -162,7 +162,7 @@ const CheckoutPage = () => {
         const token = localStorage.getItem('token');
 
         try {
-          const res = await fetch('http://localhost:5000/api/payment/vnpay/create', {
+          const res = await fetch('https://mern-websitefurniture.onrender.com/api/payment/vnpay/create', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -184,7 +184,7 @@ const CheckoutPage = () => {
 
           // Nếu tạo link thanh toán thất bại, hủy đơn hàng
           toast.error('Không tạo được link thanh toán VNPay. Đơn hàng sẽ bị hủy.');
-          const cancelRes = await fetch(`http://localhost:5000/api/orders/${orderId}/cancel`, {
+          const cancelRes = await fetch(`https://mern-websitefurniture.onrender.com/api/orders/${orderId}/cancel`, {
             method: 'PUT',
             headers: { Authorization: `Bearer ${token}` }
           });
@@ -196,7 +196,7 @@ const CheckoutPage = () => {
         } catch (fetchError) {
           // Nếu fetch lỗi, hủy đơn hàng
           toast.error('Lỗi kết nối VNPay. Đơn hàng sẽ bị hủy.');
-          await fetch(`http://localhost:5000/api/orders/${orderId}/cancel`, {
+          await fetch(`https://mern-websitefurniture.onrender.com/api/orders/${orderId}/cancel`, {
             method: 'PUT',
             headers: { Authorization: `Bearer ${token}` }
           });

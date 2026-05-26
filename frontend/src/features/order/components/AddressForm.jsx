@@ -36,8 +36,8 @@ const AddressForm = ({ isOpen, onClose, onSave, editingAddress }) => {
     try {
       const token = localStorage.getItem('token');
       const url = editingAddress
-        ? `http://localhost:5000/api/addresses/${editingAddress._id}`
-        : 'http://localhost:5000/api/addresses';
+        ? `https://mern-websitefurniture.onrender.com/api/addresses/${editingAddress._id}`
+        : 'https://mern-websitefurniture.onrender.com/api/addresses';
 
       const response = await fetch(url, {
         method: editingAddress ? 'PUT' : 'POST',

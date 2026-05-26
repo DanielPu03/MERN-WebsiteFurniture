@@ -23,7 +23,7 @@ const AddressSelectModal = ({ isOpen, onClose, onSelectAddress, selectedAddressI
     try {
       setIsLoading(true);
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/addresses', {
+      const response = await fetch('https://mern-websitefurniture.onrender.com/api/addresses', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -54,7 +54,7 @@ const AddressSelectModal = ({ isOpen, onClose, onSelectAddress, selectedAddressI
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/addresses/${addressId}`, {
+      const response = await fetch(`https://mern-websitefurniture.onrender.com/api/addresses/${addressId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -74,7 +74,7 @@ const AddressSelectModal = ({ isOpen, onClose, onSelectAddress, selectedAddressI
     e.stopPropagation();
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/addresses/${addressId}/default`, {
+      const response = await fetch(`https://mern-websitefurniture.onrender.com/api/addresses/${addressId}/default`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`

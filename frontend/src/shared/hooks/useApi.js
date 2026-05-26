@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react';
 import toast from 'react-hot-toast';
-
-const API_BASE_URL = 'http://localhost:5000/api';
+import { API_BASE_URL } from '../../app/axiosClient';
 
 const getAuthHeaders = () => ({
   'Authorization': `Bearer ${localStorage.getItem('token')}`

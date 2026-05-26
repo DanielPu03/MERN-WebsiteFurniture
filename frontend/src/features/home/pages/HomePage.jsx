@@ -6,6 +6,7 @@ import CategoryCarousel from '../components/CategoryCarousel';
 import FeaturedProducts from '../components/FeaturedProducts';
 import Collections from '../components/Collections';
 import Features from '../components/Features';
+import { API_BASE_URL } from '../../../app/axiosClient';
 
 const HomePage = () => {
   const { featuredProducts: products, isLoading, error, loadFeaturedProducts } = useHome();
@@ -19,7 +20,7 @@ const HomePage = () => {
     // Load categories
     const loadCategories = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/categories');
+        const response = await fetch(`${API_BASE_URL}/categories`);
         const data = await response.json();
         if (data.success) {
           const categoriesList = data.data.categories || data.data || [];

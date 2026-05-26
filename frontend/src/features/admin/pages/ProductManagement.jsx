@@ -42,7 +42,7 @@ const ProductManagement = () => {
   const loadProducts = async () => {
     try {
       setLoading(true);
-      let url = `http://localhost:5000/api/products?page=${currentPage}&limit=10&search=${searchTerm}&admin=true`;
+      let url = `https://mern-websitefurniture.onrender.com/api/products?page=${currentPage}&limit=10&search=${searchTerm}&admin=true`;
       
       // Filter by status if admin wants to
       if (statusFilter !== 'all') {
@@ -77,7 +77,7 @@ const ProductManagement = () => {
 
   const loadCategories = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/categories', {
+      const response = await fetch('https://mern-websitefurniture.onrender.com/api/categories', {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -95,7 +95,7 @@ const ProductManagement = () => {
 
   const loadCollections = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/collections', {
+      const response = await fetch('https://mern-websitefurniture.onrender.com/api/collections', {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -129,7 +129,7 @@ const ProductManagement = () => {
         hinhAnh: urlImages.map(img => ({ url: img.url, laAnhChinh: img.laAnhChinh }))
       };
 
-      const response = await fetch('http://localhost:5000/api/products', {
+      const response = await fetch('https://mern-websitefurniture.onrender.com/api/products', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -178,7 +178,7 @@ const ProductManagement = () => {
         hinhAnh: allImages
       };
 
-      const response = await fetch(`http://localhost:5000/api/products/${selectedProduct._id}`, {
+      const response = await fetch(`https://mern-websitefurniture.onrender.com/api/products/${selectedProduct._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -212,7 +212,7 @@ const ProductManagement = () => {
     if (!window.confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) return;
 
     try {
-      const response = await fetch(`http://localhost:5000/api/products/${productId}`, {
+      const response = await fetch(`https://mern-websitefurniture.onrender.com/api/products/${productId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -233,7 +233,7 @@ const ProductManagement = () => {
 
   const handleToggleFeatured = async (productId, currentFeatured) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/products/${productId}`, {
+      const response = await fetch(`https://mern-websitefurniture.onrender.com/api/products/${productId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -256,7 +256,7 @@ const ProductManagement = () => {
 
   const handleToggleStatus = async (productId, currentStatus) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/products/${productId}/status`, {
+      const response = await fetch(`https://mern-websitefurniture.onrender.com/api/products/${productId}/status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -360,7 +360,7 @@ const ProductManagement = () => {
     });
 
     try {
-      const response = await fetch(`http://localhost:5000/api/products/${productId}/images`, {
+      const response = await fetch(`https://mern-websitefurniture.onrender.com/api/products/${productId}/images`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
