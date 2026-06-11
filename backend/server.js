@@ -32,7 +32,7 @@ const limiter = rateLimit({
 // app.use(helmet()); // Temporarily disabled for testing
 app.use(limiter);
 app.use(cors({
-  origin: ['https://mern-website-furniture.vercel.app', 'http://localhost:3000'],
+  origin: ['https://mern-website-furniture.vercel.app', 'https://mern-websitefurniture.onrender.com', 'http://localhost:3000'],
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
