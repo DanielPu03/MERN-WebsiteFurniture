@@ -5,18 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>havyStore API Test</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
-            font-family: Arial, sans-serif;
-            max-width: 1000px;
-            margin: 0 auto;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            
+            min-height: 100vh;
             padding: 20px;
-            background: #f5f5f5;
         }
         .container {
+            max-width: 1400px;
+            margin: 0 auto;
             background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
         h1 {
             color: #333;
@@ -61,25 +67,34 @@
         .PUT { background: #ffc107; color: black; }
         .DELETE { background: #dc3545; }
         button {
-            background: #007bff;
+            background: linear-gradient(135deg, #99a9ee 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
+            padding: 12px 24px;
+            border-radius: 8px;
             cursor: pointer;
             margin: 5px;
             font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         button:hover {
-            background: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
         }
-        input, select {
+        input, select, textarea {
             width: 100%;
-            padding: 10px;
-            margin: 5px 0;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            padding: 12px;
+            margin: 8px 0;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
             font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
         }
         #response {
             background: #1e1e1e;
@@ -107,23 +122,37 @@
         }
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+        @media (min-width: 1200px) {
+            .grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            .container {
+                padding: 20px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🚀 havyStore API Test</h1>
+        <h1>Bàn Đồ Nội Thất - API Test</h1>
+        <p style="text-align: center; color: #666; margin-bottom: 20px;">Trang kiểm thử API cho hệ thống bán đồ nội thất</p>
         
         <!-- Authentication Section -->
         <div class="auth-section">
-            <h3>🔐 Đăng nhập Admin</h3>
+            <h3>Đăng nhập Admin</h3>
             <input type="email" id="email" placeholder="Email" value="admin@admin.com">
             <input type="password" id="password" placeholder="Mật khẩu" value="123456">
             <div style="margin: 10px 0;">
                 <button onclick="login()">Đăng nhập</button>
-                <button onclick="createAdminUser()" style="background: #28a745;">Tạo Admin User</button>
             </div>
             <div id="token-display" class="token-display" style="display: none;">
                 <strong>Token:</strong>
@@ -131,236 +160,242 @@
             </div>
         </div>
         
+        <div class="auth-section" ">
+            <h3>Đăng nhập User</h3>
+            <input type="email" id="userEmail" placeholder="Email user">
+            <input type="password" id="userPassword" placeholder="Mật khẩu user">
+            <div style="margin: 10px 0;">
+                <button onclick="loginUser()">Đăng nhập</button>
+            </div>
+        </div>
+        
+        <div class="auth-section" >
+            <h3>Admin Tạo User </h3>
+            <input type="text" id="adminCreateName" placeholder="Họ tên">
+            <input type="email" id="adminCreateEmail" placeholder="Email">
+            <input type="password" id="adminCreatePassword" placeholder="Mật khẩu (có ít nhất 6 kí tự, bao gồm chữ hoa, thường, số)">
+            <input type="text" id="adminCreatePhone" placeholder="Số điện thoại">
+            <input type="text" id="adminCreateAddress" placeholder="Địa chỉ">
+            <select id="adminCreateRole" style="margin:5px 0;">
+                <option value="user">User thường</option>
+                <option value="admin">Admin</option>
+            </select>
+            <div style="margin: 10px 0;">
+                <button onclick="adminCreateUser()" style="background: #dc3545;">Tạo User với Role</button>
+            </div>
+        </div>
+        
         <!-- API Endpoints -->
         <div class="grid">
             <!-- Authentication -->
             <div class="api-section">
-                <h3>🔐 Authentication</h3>
+                <h3>Authentication</h3>
                 <div class="endpoint">
                     <span class="method GET">GET</span>/api/auth/me
                     <button onclick="getProfile()">Get Profile</button>
                 </div>
             </div>
             
-            <!-- Products -->
+            <!-- Sản Phẩm (Products) -->
             <div class="api-section">
-                <h3>📦 Products</h3>
+                <h3>Sản Phẩm Nội Thất</h3>
                 <div class="endpoint">
                     <span class="method GET">GET</span>/api/products
-                    <button onclick="getProducts()">Get Products</button>
+                    <button onclick="getProducts()">Lấy Danh Sách</button>
                 </div>
                 <div class="endpoint">
                     <span class="method GET">GET</span>/api/products/:id
-                    <button onclick="getProductById()">Get Product by ID</button>
+                    <button onclick="getProductById()">Chi Tiết Sản Phẩm</button>
                 </div>
                 <div class="endpoint">
                     <span class="method GET">GET</span>/api/products/:id/collections
-                    <button onclick="getProductCollections()">Get Product Collections</button>
+                    <button onclick="getProductCollections()">Bộ Sưu Tập Của SP</button>
                 </div>
                 <div class="endpoint">
                     <span class="method POST">POST</span>/api/products
-                    <button onclick="createProduct()">Create Product</button>
+                    <button onclick="createProduct()">Thêm Mới</button>
                 </div>
                 <div class="endpoint">
                     <span class="method PUT">PUT</span>/api/products/:id
-                    <button onclick="updateProduct()">Update Product</button>
+                    <button onclick="updateProduct()">Cập Nhật</button>
                 </div>
                 <div class="endpoint">
                     <span class="method DELETE">DELETE</span>/api/products/:id
-                    <button onclick="deleteProduct()">Delete Product</button>
+                    <button onclick="deleteProduct()">Xóa</button>
                 </div>
                 <div style="margin-top: 10px; padding: 10px; background: #f0f0f0; border-radius: 4px;">
-                    <h4 style="margin: 0 0 10px 0; color: #333;">📝 Quản lý Product</h4>
-                    <input type="text" id="productName" placeholder="Tên sản phẩm" style="margin:5px 0;">
+                    <h4 style="margin: 0 0 10px 0; color: #333;">Quản Lý Sản Phẩm</h4>
+                    <input type="text" id="productName" placeholder="Tên sản phẩm (vd: Bàn ăn gỗ)" style="margin:5px 0;">
                     <input type="number" id="productPrice" placeholder="Giá (VNĐ)" style="margin:5px 0;">
                     <input type="number" id="productStock" placeholder="Số lượng tồn" style="margin:5px 0;">
                     <select id="productCategory" style="margin:5px 0;">
                         <option value="">Chọn danh mục...</option>
                     </select>
-                    <select id="productBrand" style="margin:5px 0;">
-                        <option value="">Chọn thương hiệu...</option>
+                    <select id="productFeatured" style="margin:5px 0;">
+                        <option value="false">Sản phẩm thường</option>
+                        <option value="true">Sản phẩm nổi bật</option>
                     </select>
                     <input type="text" id="productImage" placeholder="Link hình ảnh" style="margin:5px 0;">
-                    <textarea id="productDesc" placeholder="Mô tả sản phẩm" rows="3" style="margin: 5px 0; resize: vertical;"></textarea>
+                    <textarea id="productDesc" placeholder="Mô tả sản phẩm (chất liệu, kích thước, màu sắc...)" rows="3" style="margin: 5px 0; resize: vertical;"></textarea>
                     <div style="margin: 10px 0;">
-                        <input type="text" id="productId" placeholder="Product ID để Update/Delete" style="margin:5px 0; width: 60%;">
-                        <button onclick="createProductFromForm()" style="background: #28a745; margin-right: 10px;">Tạo Product</button>
-                        <button onclick="updateProductFromForm()" style="background: #ffc107; margin-right: 10px;">Update Product</button>
-                        <button onclick="deleteProductFromForm()" style="background: #dc3545;">Delete Product</button>
+                        <input type="text" id="productId" placeholder="Product ID để Cập Nhật/Xóa" style="margin:5px 0; width: 60%;">
+                        <button onclick="createProductFromForm()" style="background: #28a745; margin-right: 10px;">Thêm Mới</button>
+                        <button onclick="updateProductFromForm()" style="background: #ffc107; margin-right: 10px;">Cập Nhật</button>
+                        <button onclick="deleteProductFromForm()" style="background: #dc3545;">Xóa</button>
                     </div>
                 </div>
             </div>
             
-            <!-- Collections -->
+            <!-- Bộ Sưu Tập (Collections) -->
             <div class="api-section">
-                <h3>🎨 Collections</h3>
+                <h3>Bộ Sưu Tập</h3>
                 <div class="endpoint">
                     <span class="method GET">GET</span>/api/collections
-                    <button onclick="getCollections()">Get Collections</button>
+                    <button onclick="getCollections()">Lấy Danh Sách</button>
                 </div>
                 <div class="endpoint">
                     <span class="method GET">GET</span>/api/collections/:id
-                    <button onclick="getCollectionById()">Get Collection by ID</button>
+                    <button onclick="getCollectionById()">Chi Tiết BST</button>
                 </div>
                 <div class="endpoint">
                     <span class="method POST">POST</span>/api/collections
-                    <button onclick="createCollection()">Create Collection</button>
+                    <button onclick="createCollection()">Thêm Mới</button>
                 </div>
                 <div class="endpoint">
                     <span class="method PUT">PUT</span>/api/collections/:id
-                    <button onclick="updateCollection()">Update Collection</button>
+                    <button onclick="updateCollection()">Cập Nhật</button>
                 </div>
                 <div class="endpoint">
                     <span class="method DELETE">DELETE</span>/api/collections/:id
-                    <button onclick="deleteCollection()">Delete Collection</button>
+                    <button onclick="deleteCollection()">Xóa</button>
                 </div>
                 <div style="margin-top: 10px; padding: 10px; background: #f0f0f0; border-radius:4px;">
-                    <h4 style="margin: 0 0 10px 0; color: #333;">📝 Quản lý Collection</h4>
-                    <input type="text" id="collectionName" placeholder="Tên bộ sưu tập" style="margin:5px 0;">
+                    <h4 style="margin: 0 0 10px 0; color: #333;">Quản Lý Bộ Sưu Tập</h4>
+                    <input type="text" id="collectionName" placeholder="Tên bộ sưu tập (vd: Phong cách Hiện đại)" style="margin:5px 0;">
                     <textarea id="collectionDesc" placeholder="Mô tả bộ sưu tập" rows="2" style="margin: 5px 0; resize: vertical;"></textarea>
                     <input type="text" id="collectionImage" placeholder="Link hình ảnh" style="margin:5px 0;">
                     <div style="margin: 10px 0;">
-                        <input type="text" id="collectionId" placeholder="Collection ID để Update/Delete" style="margin:5px 0; width: 60%;">
-                        <button onclick="createCollectionFromForm()" style="background: #28a745; margin-right: 10px;">Tạo Collection</button>
-                        <button onclick="updateCollectionFromForm()" style="background: #ffc107; margin-right: 10px;">Update Collection</button>
-                        <button onclick="deleteCollectionFromForm()" style="background: #dc3545;">Delete Collection</button>
+                        <input type="text" id="collectionId" placeholder="Collection ID để Cập Nhật/Xóa" style="margin:5px 0; width: 60%;">
+                        <button onclick="createCollectionFromForm()" style="background: #28a745; margin-right: 10px;">Thêm Mới</button>
+                        <button onclick="updateCollectionFromForm()" style="background: #ffc107; margin-right: 10px;">Cập Nhật</button>
+                        <button onclick="deleteCollectionFromForm()" style="background: #dc3545;">Xóa</button>
                     </div>
                 </div>
             </div>
             
-            <!-- Categories -->
+            <!-- Danh Mục (Categories) -->
             <div class="api-section">
-                <h3>📂 Categories</h3>
+                <h3>Danh Mục</h3>
                 <div class="endpoint">
                     <span class="method GET">GET</span>/api/categories
-                    <button onclick="getCategories()">Get Categories</button>
+                    <button onclick="getCategories()">Lấy Danh Sách</button>
                 </div>
                 <div class="endpoint">
                     <span class="method GET">GET</span>/api/categories/:id
-                    <button onclick="getCategoryById()">Get Category by ID</button>
+                    <button onclick="getCategoryById()">Chi Tiết Danh Mục</button>
                 </div>
                 <div class="endpoint">
                     <span class="method POST">POST</span>/api/categories
-                    <button onclick="createCategory()">Create Category</button>
+                    <button onclick="createCategory()">Thêm Mới</button>
                 </div>
                 <div class="endpoint">
                     <span class="method PUT">PUT</span>/api/categories/:id
-                    <button onclick="updateCategory()">Update Category</button>
+                    <button onclick="updateCategory()">Cập Nhật</button>
                 </div>
                 <div class="endpoint">
                     <span class="method DELETE">DELETE</span>/api/categories/:id
-                    <button onclick="deleteCategory()">Delete Category</button>
+                    <button onclick="deleteCategory()">Xóa</button>
                 </div>
                 <div style="margin-top: 10px; padding: 10px; background: #f0f0f0; border-radius:4px;">
-                    <h4 style="margin: 0 0 10px 0; color: #333;">📝 Quản lý Category</h4>
-                    <input type="text" id="categoryName" placeholder="Tên danh mục" style="margin:5px 0;">
+                    <h4 style="margin: 0 0 10px 0; color: #333;">Quản Lý Danh Mục</h4>
+                    <input type="text" id="categoryName" placeholder="Tên danh mục (vd: Bàn, Ghế, Tủ...)" style="margin:5px 0;">
+                    <input type="text" id="categoryIcon" placeholder="Icon (emoji)" style="margin:5px 0;">
                     <textarea id="categoryDesc" placeholder="Mô tả danh mục" rows="2" style="margin: 5px 0; resize: vertical;"></textarea>
                     <div style="margin: 10px 0;">
-                        <input type="text" id="categoryId" placeholder="Category ID để Update/Delete" style="margin:5px 0; width: 60%;">
-                        <button onclick="createCategoryFromForm()" style="background: #28a745; margin-right: 10px;">Tạo Category</button>
-                        <button onclick="updateCategoryFromForm()" style="background: #ffc107; margin-right: 10px;">Update Category</button>
-                        <button onclick="deleteCategoryFromForm()" style="background: #dc3545;">Delete Category</button>
+                        <input type="text" id="categoryId" placeholder="Category ID để Cập Nhật/Xóa" style="margin:5px 0; width: 60%;">
+                        <button onclick="createCategoryFromForm()" style="background: #28a745; margin-right: 10px;">Thêm Mới</button>
+                        <button onclick="updateCategoryFromForm()" style="background: #ffc107; margin-right: 10px;">Cập Nhật</button>
+                        <button onclick="deleteCategoryFromForm()" style="background: #dc3545;">Xóa</button>
                     </div>
                 </div>
             </div>
             
-            <!-- Brands -->
+            <!-- Giỏ Hàng (Cart) -->
             <div class="api-section">
-                <h3>🏷️ Brands</h3>
-                <div class="endpoint">
-                    <span class="method GET">GET</span>/api/brands
-                    <button onclick="getBrands()">Get Brands</button>
-                </div>
-                <div class="endpoint">
-                    <span class="method GET">GET</span>/api/brands/:id
-                    <button onclick="getBrandById()">Get Brand by ID</button>
-                </div>
-                <div class="endpoint">
-                    <span class="method POST">POST</span>/api/brands
-                    <button onclick="createBrand()">Create Brand</button>
-                </div>
-                <div class="endpoint">
-                    <span class="method PUT">PUT</span>/api/brands/:id
-                    <button onclick="updateBrand()">Update Brand</button>
-                </div>
-                <div class="endpoint">
-                    <span class="method DELETE">DELETE</span>/api/brands/:id
-                    <button onclick="deleteBrand()">Delete Brand</button>
-                </div>
-                <div style="margin-top: 10px; padding: 10px; background: #f0f0f0; border-radius:4px;">
-                    <h4 style="margin: 0 0 10px 0; color: #333;">📝 Quản lý Brand</h4>
-                    <input type="text" id="brandName" placeholder="Tên thương hiệu" style="margin:5px 0;">
-                    <textarea id="brandDesc" placeholder="Mô tả thương hiệu" rows="2" style="margin: 5px 0; resize: vertical;"></textarea>
-                    <div style="margin: 10px 0;">
-                        <input type="text" id="brandId" placeholder="Brand ID để Update/Delete" style="margin:5px 0; width: 60%;">
-                        <button onclick="createBrandFromForm()" style="background: #28a745; margin-right: 10px;">Tạo Brand</button>
-                        <button onclick="updateBrandFromForm()" style="background: #ffc107; margin-right: 10px;">Update Brand</button>
-                        <button onclick="deleteBrandFromForm()" style="background: #dc3545;">Delete Brand</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Cart -->
-            <div class="api-section">
-                <h3>🛒 Cart</h3>
+                <h3>Giỏ Hàng</h3>
                 <div class="endpoint">
                     <span class="method GET">GET</span>/api/cart
-                    <button onclick="getCart()">Get Cart</button>
+                    <button onclick="getCart()">Xem Giỏ Hàng</button>
                 </div>
             </div>
             
-            <!-- Wishlist -->
+            <!-- Yêu Thích (Wishlist) -->
             <div class="api-section">
-                <h3>❤️ Wishlist</h3>
+                <h3>Yêu Thích</h3>
                 <div class="endpoint">
                     <span class="method GET">GET</span>/api/wishlist
-                    <button onclick="getWishlist()">Get Wishlist</button>
+                    <button onclick="getWishlist()">Xem Danh Sách Yêu Thích</button>
                 </div>
             </div>
             
-            <!-- Orders -->
+            <!-- Đơn Hàng (Orders) -->
             <div class="api-section">
-                <h3>📋 Orders</h3>
+                <h3>Đơn Hàng</h3>
                 <div class="endpoint">
                     <span class="method GET">GET</span>/api/orders
-                    <button onclick="getOrders()">Get Orders</button>
+                    <button onclick="getOrders()">Xem Đơn Hàng</button>
                 </div>
             </div>
             
-            <!-- Many-to-Many Relationship Test -->
+            <!-- Địa Chỉ (Addresses) -->
             <div class="api-section">
-                <h3>🔗 Many-to-Many Test</h3>
-                <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                    <h4 style="margin: 0 0 10px 0; color: #1976d2;">🎯 Test Collection ↔ Product Relationship</h4>
-                    <p style="margin: 5px 0; font-size: 14px;">1. Tạo collection với products</p>
-                    <p style="margin: 5px 0; font-size: 14px;">2. Xem collections của một product</p>
-                    <p style="margin: 5px 0; font-size: 14px;">3. Update collection products</p>
-                    <p style="margin: 5px 0; font-size: 14px;">4. Kiểm tra sync 2 chiều</p>
+                <h3>Địa Chỉ Giao Hàng</h3>
+                <div class="endpoint">
+                    <span class="method GET">GET</span>/api/addresses
+                    <button onclick="getAddresses()">Xem Địa Chỉ</button>
                 </div>
                 <div class="endpoint">
-                    <span class="method POST">POST</span>/api/collections (with products)
-                    <button onclick="testCreateCollectionWithProducts()">Create Collection + Products</button>
+                    <span class="method POST">POST</span>/api/addresses
+                    <button onclick="createAddress()">Thêm Địa Chỉ (Test)</button>
                 </div>
                 <div class="endpoint">
-                    <span class="method GET">GET</span>/api/products/:id/collections
-                    <button onclick="testProductCollections()">Check Product Collections</button>
+                    <span class="method PUT">PUT</span>/api/addresses/:id
+                    <button onclick="updateAddress()">Cập Nhật</button>
                 </div>
                 <div class="endpoint">
-                    <span class="method PUT">PUT</span>/api/collections/:id (update products)
-                    <button onclick="testUpdateCollectionProducts()">Update Collection Products</button>
+                    <span class="method DELETE">DELETE</span>/api/addresses/:id
+                    <button onclick="deleteAddress()">Xóa</button>
+                </div>
+                <div class="endpoint">
+                    <span class="method PUT">PUT</span>/api/addresses/:id/default
+                    <button onclick="setDefaultAddress()">Đặt Làm Mặc Định</button>
+                </div>
+                <div style="margin-top: 10px; padding: 10px; background: #f0f0f0; border-radius:4px;">
+                    <h4 style="margin: 0 0 10px 0; color: #333;">Thêm Địa Chỉ</h4>
+                    <input type="text" id="addressName" placeholder="Tên người nhận" style="margin:5px 0;">
+                    <input type="text" id="addressPhone" placeholder="Số điện thoại (10 số)" style="margin:5px 0;">
+                    <input type="text" id="addressDetail" placeholder="Địa chỉ cụ thể (số nhà, tên đường)" style="margin:5px 0;">
+                    <input type="text" id="addressWard" placeholder="Phường/Xã" style="margin:5px 0;">
+                    <input type="text" id="addressDistrict" placeholder="Quận/Huyện" style="margin:5px 0;">
+                    <input type="text" id="addressProvince" placeholder="Tỉnh/Thành phố" style="margin:5px 0;">
+                    <div style="margin: 10px 0;">
+                        <button onclick="createAddressFromForm()" style="background: #28a745;">Thêm Địa Chỉ</button>
+                    </div>
                 </div>
             </div>
         </div>
         
         <!-- Response Section -->
         <div class="api-section">
-            <h3>📝 API Response</h3>
-            <div id="response">Click button to test API...</div>
+            <h3> API</h3>
+            <div id="response">Nhấn nút để test API...</div>
         </div>
     </div>
 
     <script>
-        const API_BASE = 'http://localhost:5000/api';
+        const API_BASE = window.location.hostname === 'localhost' 
+            ? 'http://localhost:5000/api' 
+            : `${window.location.protocol}//${window.location.hostname}/api`;
         let currentToken = '';
         
         function showResponse(data, status, statusText) {
@@ -425,7 +460,31 @@
                 currentToken = result.data.token;
                 document.getElementById('token-display').style.display = 'block';
                 document.getElementById('token-text').textContent = result.data.token;
-                showResponse({ message: 'Đăng nhập thành công!' }, 200, 'Success');
+                showResponse({ message: 'Đăng nhập thành công!', user: result.data.user }, 200, 'Success');
+            } else {
+                showResponse({ message: 'Đăng nhập thất bại!' }, 401, 'Unauthorized');
+            }
+        }
+        
+        async function loginUser() {
+            const email = document.getElementById('userEmail').value;
+            const password = document.getElementById('userPassword').value;
+            
+            if (!email || !password) {
+                showResponse({ error: 'Vui lòng nhập email và mật khẩu!' }, 400, 'Validation Error');
+                return;
+            }
+            
+            const result = await apiCall('/auth/login', 'POST', {
+                email: email,
+                matKhau: password
+            });
+            
+            if (result && result.success && result.data && result.data.token) {
+                currentToken = result.data.token;
+                document.getElementById('token-display').style.display = 'block';
+                document.getElementById('token-text').textContent = result.data.token;
+                showResponse({ message: 'Đăng nhập user thành công!', user: result.data.user }, 200, 'Success');
             } else {
                 showResponse({ message: 'Đăng nhập thất bại!' }, 401, 'Unauthorized');
             }
@@ -435,10 +494,10 @@
             const adminData = {
                 hoTen: 'Admin User',
                 email: 'admin@example.com',
-                matKhau: 'admin123',
+                matKhau: 'Admin123',
                 soDienThoai: '0900000000',
                 diaChi: 'Admin Address',
-                vaiTro: 'admin'
+                role: 'admin'
             };
             
             const result = await apiCall('/auth/register', 'POST', adminData);
@@ -450,26 +509,77 @@
             }
         }
         
+        async function createRegularUser() {
+            const userData = {
+                hoTen: 'Nguyễn Văn A',
+                email: document.getElementById('userEmail').value || 'user@example.com',
+                matKhau: document.getElementById('userPassword').value || 'User123',
+                soDienThoai: '0901234567',
+                diaChi: '123 Đường ABC, Quận 1, TP.HCM'
+            };
+            
+            const result = await apiCall('/auth/register', 'POST', userData);
+            
+            if (result && result.success) {
+                showResponse({ message: 'Tạo user thành công! Bây giờ có thể đăng nhập.' }, 201, 'Created');
+            } else {
+                showResponse({ message: 'Tạo user thất bại! ' + (result.message || ''), }, 400, 'Bad Request');
+            }
+        }
+        
+        async function adminCreateUser() {
+            const userData = {
+                hoTen: document.getElementById('adminCreateName').value,
+                email: document.getElementById('adminCreateEmail').value,
+                matKhau: document.getElementById('adminCreatePassword').value,
+                soDienThoai: document.getElementById('adminCreatePhone').value,
+                diaChi: document.getElementById('adminCreateAddress').value,
+                role: document.getElementById('adminCreateRole').value === 'admin' ? 1 : 0
+            };
+            
+            // Validation
+            if (!userData.hoTen || !userData.email || !userData.matKhau) {
+                showResponse({ error: 'Vui lòng điền họ tên, email và mật khẩu!' }, 400, 'Validation Error');
+                return;
+            }
+            
+            // Validate password format (at least 6 chars, 1 uppercase, 1 lowercase, 1 number)
+            if (userData.matKhau.length < 6 || !/[A-Z]/.test(userData.matKhau) || !/[a-z]/.test(userData.matKhau) || !/[0-9]/.test(userData.matKhau)) {
+                showResponse({ error: 'Mật khẩu phải có ít nhất 6 ký tự, bao gồm chữ hoa, chữ thường và số!' }, 400, 'Validation Error');
+                return;
+            }
+            
+            // Validate phone number (exactly 10 digits)
+            if (!userData.soDienThoai || !/^[0-9]{10}$/.test(userData.soDienThoai)) {
+                showResponse({ error: 'Số điện thoại phải có đúng 10 chữ số!' }, 400, 'Validation Error');
+                return;
+            }
+            
+            const result = await apiCall('/auth/register', 'POST', userData);
+            
+            if (result && result.success) {
+                showResponse({ message: 'Admin đã tạo user thành công với role: ' + (userData.role === 1 ? 'Admin' : 'User') }, 201, 'Created');
+            } else {
+                showResponse({ message: 'Tạo user thất bại! ' + (result.message || ''), }, 400, 'Bad Request');
+            }
+        }
+        
         async function getProfile() {
             await apiCall('/auth/me');
         }
         
-        // Load categories and brands into selects
+        // Load categories into select
         async function loadCategoriesAndBrands() {
             try {
-                console.log('Loading categories and brands...');
+                console.log('Loading categories...');
                 const categories = await apiCall('/categories');
-                const brands = await apiCall('/brands');
                 
                 console.log('Categories response:', categories);
-                console.log('Brands response:', brands);
                 
                 const categorySelect = document.getElementById('productCategory');
-                const brandSelect = document.getElementById('productBrand');
                 
                 // Clear existing options
                 categorySelect.innerHTML = '<option value="">Chọn danh mục...</option>';
-                brandSelect.innerHTML = '<option value="">Chọn thương hiệu...</option>';
                 
                 // Add category options
                 if (categories && categories.data && categories.data.categories) {
@@ -483,21 +593,8 @@
                 } else {
                     console.log('No categories found');
                 }
-                
-                // Add brand options
-                if (brands && brands.data && brands.data.brands) {
-                    console.log('Found brands:', brands.data.brands.length);
-                    brands.data.brands.forEach(brand => {
-                        const option = document.createElement('option');
-                        option.value = brand._id;
-                        option.textContent = brand.tenThuongHieu;
-                        brandSelect.appendChild(option);
-                    });
-                } else {
-                    console.log('No brands found');
-                }
             } catch (error) {
-                console.error('Error loading categories and brands:', error);
+                console.error('Error loading categories:', error);
             }
         }
         
@@ -507,34 +604,26 @@
         }
         
         async function createProduct() {
-            // First get valid category and brand IDs
+            // First get valid category ID
             const categories = await apiCall('/categories');
-            const brands = await apiCall('/brands');
             
             let categoryId = '';
-            let brandId = '';
             
             if (categories && categories.data && categories.data.categories && categories.data.categories.length > 0) {
                 categoryId = categories.data.categories[0]._id;
             }
             
-            if (brands && brands.data && brands.data.brands && brands.data.brands.length > 0) {
-                brandId = brands.data.brands[0]._id;
-            }
-            
             const productData = {
-                tenSanPham: 'Test Product API',
-                gia: 1500000,
-                soLuongTon: 50,
-                moTa: 'Product created via API Test'
+                tenSanPham: 'Bàn ăn gỗ sồi',
+                gia: 3500000,
+                soLuongTon: 15,
+                moTa: 'Bàn ăn gỗ sồi tự nhiên, kích thước 1.6m x 0.9m, phù hợp cho 4-6 người',
+                noiBat: false,
+                trangThai: true
             };
             
             if (categoryId) {
                 productData.danhMucId = categoryId;
-            }
-            
-            if (brandId) {
-                productData.thuongHieuId = brandId;
             }
             
             await apiCall('/products', 'POST', productData);
@@ -546,13 +635,19 @@
                 gia: parseInt(document.getElementById('productPrice').value) || 0,
                 soLuongTon: parseInt(document.getElementById('productStock').value) || 0,
                 danhMucId: document.getElementById('productCategory').value,
-                thuongHieuId: document.getElementById('productBrand').value,
                 moTa: document.getElementById('productDesc').value,
-                hinhAnh: document.getElementById('productImage').value ? [document.getElementById('productImage').value] : []
+                noiBat: document.getElementById('productFeatured').value === 'true',
+                trangThai: true
             };
             
+            // Add image if provided
+            const imageUrl = document.getElementById('productImage').value;
+            if (imageUrl) {
+                productData.hinhAnh = imageUrl;
+            }
+            
             // Validation
-            if (!productData.tenSanPham || !productData.gia || !productData.danhMucId || !productData.thuongHieuId) {
+            if (!productData.tenSanPham || !productData.gia || !productData.danhMucId) {
                 showResponse({ error: 'Vui lòng điền đầy đủ thông tin bắt buộc!' }, 400, 'Validation Error');
                 return;
             }
@@ -569,12 +664,17 @@
             const collectionData = {
                 tenBoSuuTap: document.getElementById('collectionName').value,
                 moTa: document.getElementById('collectionDesc').value,
-                hinhAnh: document.getElementById('collectionImage').value,
                 sanPhams: []
             };
             
-            if (!collectionData.tenBoSuuTap || !collectionData.moTa) {
-                showResponse({ error: 'Vui lòng điền tên và mô tả bộ sưu tập!' }, 400, 'Validation Error');
+            // Add image if provided
+            const imageUrl = document.getElementById('collectionImage').value;
+            if (imageUrl) {
+                collectionData.hinhAnh = [{ url: imageUrl, laAnhChinh: true }];
+            }
+            
+            if (!collectionData.tenBoSuuTap) {
+                showResponse({ error: 'Vui lòng điền tên bộ sưu tập!' }, 400, 'Validation Error');
                 return;
             }
             
@@ -589,7 +689,8 @@
         async function createCategoryFromForm() {
             const categoryData = {
                 tenDanhMuc: document.getElementById('categoryName').value,
-                moTa: document.getElementById('categoryDesc').value
+                moTa: document.getElementById('categoryDesc').value,
+                icon: document.getElementById('categoryIcon').value || 'box'
             };
             
             if (!categoryData.tenDanhMuc) {
@@ -598,25 +699,6 @@
             }
             
             await apiCall('/categories', 'POST', categoryData);
-        }
-        
-        // Brands
-        async function getBrands() {
-            await apiCall('/brands');
-        }
-        
-        async function createBrandFromForm() {
-            const brandData = {
-                tenThuongHieu: document.getElementById('brandName').value,
-                moTa: document.getElementById('brandDesc').value
-            };
-            
-            if (!brandData.tenThuongHieu) {
-                showResponse({ error: 'Vui lòng điền tên thương hiệu!' }, 400, 'Validation Error');
-                return;
-            }
-            
-            await apiCall('/brands', 'POST', brandData);
         }
         
         // Cart
@@ -636,23 +718,23 @@
         }
         
         async function getProductCollections() {
-            const id = prompt('Nhập Product ID để xem collections:');
+            const id = prompt('Nhập Product ID để xem bộ sưu tập:');
             if (id) await apiCall('/products/' + id + '/collections');
         }
         
         async function updateProduct() {
-            const id = prompt('Nhập Product ID để update:');
+            const id = prompt('Nhập Product ID để cập nhật:');
             if (id) {
                 await apiCall('/products/' + id, 'PUT', {
-                    tenSanPham: 'Updated Product Name',
-                    gia: 2000000,
-                    soLuongTon: 100
+                    tenSanPham: 'Ghế sofa da cao cấp',
+                    gia: 8500000,
+                    soLuongTon: 8
                 });
             }
         }
         
         async function deleteProduct() {
-            const id = prompt('Nhập Product ID để delete:');
+            const id = prompt('Nhập Product ID để xóa:');
             if (id) await apiCall('/products/' + id, 'DELETE');
         }
         
@@ -663,19 +745,18 @@
         }
         
         async function updateCollection() {
-            const id = prompt('Nhập Collection ID để update:');
+            const id = prompt('Nhập Collection ID để cập nhật:');
             if (id) {
                 await apiCall('/collections/' + id, 'PUT', {
-                    tenBoSuuTap: 'Updated Collection Name',
-                    moTa: 'Updated collection description',
-                    hinhAnh: 'https://via.placeholder.com/300x200.png?text=Updated',
+                    tenBoSuuTap: 'Phong cách Scandinavian',
+                    moTa: 'Bộ sưu tập nội thất phong cách Bắc Âu tối giản',
                     sanPhams: []
                 });
             }
         }
         
         async function deleteCollection() {
-            const id = prompt('Nhập Collection ID để delete:');
+            const id = prompt('Nhập Collection ID để xóa:');
             if (id) await apiCall('/collections/' + id, 'DELETE');
         }
         
@@ -684,11 +765,16 @@
             const collectionData = {
                 tenBoSuuTap: document.getElementById('collectionName').value,
                 moTa: document.getElementById('collectionDesc').value,
-                hinhAnh: document.getElementById('collectionImage').value,
                 sanPhams: []
             };
             
-            if (!id || !collectionData.tenBoSuuTap || !collectionData.moTa) {
+            // Add image if provided
+            const imageUrl = document.getElementById('collectionImage').value;
+            if (imageUrl) {
+                collectionData.hinhAnh = [{ url: imageUrl, laAnhChinh: true }];
+            }
+            
+            if (!id || !collectionData.tenBoSuuTap) {
                 showResponse({ error: 'Vui lòng nhập ID và điền đầy đủ thông tin!' }, 400, 'Validation Error');
                 return;
             }
@@ -713,17 +799,18 @@
         }
         
         async function updateCategory() {
-            const id = prompt('Nhập Category ID để update:');
+            const id = prompt('Nhập Category ID để cập nhật:');
             if (id) {
                 await apiCall('/categories/' + id, 'PUT', {
-                    tenDanhMuc: 'Updated Category Name',
-                    moTa: 'Updated category description'
+                    tenDanhMuc: 'Tủ',
+                    moTa: 'Các loại tủ đựng đồ, tủ kệ',
+                    icon: 'folder'
                 });
             }
         }
         
         async function deleteCategory() {
-            const id = prompt('Nhập Category ID để delete:');
+            const id = prompt('Nhập Category ID để xóa:');
             if (id) await apiCall('/categories/' + id, 'DELETE');
         }
         
@@ -731,7 +818,8 @@
             const id = document.getElementById('categoryId').value;
             const categoryData = {
                 tenDanhMuc: document.getElementById('categoryName').value,
-                moTa: document.getElementById('categoryDesc').value
+                moTa: document.getElementById('categoryDesc').value,
+                icon: document.getElementById('categoryIcon').value || 'box'
             };
             
             if (!id || !categoryData.tenDanhMuc) {
@@ -752,55 +840,95 @@
             await apiCall('/categories/' + id, 'DELETE');
         }
         
-        // Brands CRUD
-        async function getBrandById() {
-            const id = prompt('Nhập Brand ID:');
-            if (id) await apiCall('/brands/' + id);
+        // Orders
+        async function getOrders() {
+            await apiCall('/orders');
         }
         
-        async function updateBrand() {
-            const id = prompt('Nhập Brand ID để update:');
+        // Addresses
+        async function getAddresses() {
+            await apiCall('/addresses');
+        }
+        
+        async function createAddress() {
+            // Note: This requires a valid nguoiDungId from logged in user
+            const addressData = {
+                tenNguoiNhan: 'Nguyễn Văn A',
+                soDienThoai: '0901234567',
+                diaChiCuThe: '123 Đường ABC, Phường XYZ',
+                phuongXa: 'Phường 1',
+                quanHuyen: 'Quận 1',
+                tinhThanh: 'TP. Hồ Chí Minh',
+                macDinh: false
+            };
+            await apiCall('/addresses', 'POST', addressData);
+        }
+        
+        async function createAddressFromForm() {
+            const addressData = {
+                tenNguoiNhan: document.getElementById('addressName').value,
+                soDienThoai: document.getElementById('addressPhone').value,
+                diaChiCuThe: document.getElementById('addressDetail').value,
+                phuongXa: document.getElementById('addressWard').value,
+                quanHuyen: document.getElementById('addressDistrict').value,
+                tinhThanh: document.getElementById('addressProvince').value,
+                macDinh: false
+            };
+            
+            // Validation
+            if (!addressData.tenNguoiNhan || !addressData.soDienThoai || !addressData.diaChiCuThe || 
+                !addressData.phuongXa || !addressData.quanHuyen || !addressData.tinhThanh) {
+                showResponse({ error: 'Vui lòng điền đầy đủ thông tin!' }, 400, 'Validation Error');
+                return;
+            }
+            
+            // Validate phone number (10 digits)
+            if (!/^[0-9]{10}$/.test(addressData.soDienThoai)) {
+                showResponse({ error: 'Số điện thoại phải có 10 chữ số!' }, 400, 'Validation Error');
+                return;
+            }
+            
+            await apiCall('/addresses', 'POST', addressData);
+        }
+        
+        async function updateAddress() {
+            const id = prompt('Nhập Address ID để update:');
             if (id) {
-                await apiCall('/brands/' + id, 'PUT', {
-                    tenThuongHieu: 'Updated Brand Name',
-                    moTa: 'Updated brand description'
+                await apiCall('/addresses/' + id, 'PUT', {
+                    tenNguoiNhan: 'Updated User',
+                    soDienThoai: '0900000001',
+                    diaChi: '456 Updated Street'
                 });
             }
         }
         
-        async function deleteBrand() {
-            const id = prompt('Nhập Brand ID để delete:');
-            if (id) await apiCall('/brands/' + id, 'DELETE');
+        async function deleteAddress() {
+            const id = prompt('Nhập Address ID để delete:');
+            if (id) await apiCall('/addresses/' + id, 'DELETE');
         }
         
-        async function updateBrandFromForm() {
-            const id = document.getElementById('brandId').value;
-            const brandData = {
-                tenThuongHieu: document.getElementById('brandName').value,
-                moTa: document.getElementById('brandDesc').value
-            };
-            
-            if (!id || !brandData.tenThuongHieu) {
-                showResponse({ error: 'Vui lòng nhập ID và tên thương hiệu!' }, 400, 'Validation Error');
-                return;
+        async function setDefaultAddress() {
+            const id = prompt('Nhập Address ID để set làm mặc định:');
+            if (id) await apiCall('/addresses/' + id + '/default', 'PUT');
+        }
+        
+        // Admin
+        async function getAdminStats() {
+            await apiCall('/admin/stats');
+        }
+        
+        async function getAdminUsers() {
+            await apiCall('/admin/users');
+        }
+        
+        async function updateUserStatus() {
+            const id = prompt('Nhập User ID:');
+            const status = prompt('Nhập status (true/false):');
+            if (id && status) {
+                await apiCall('/admin/users/' + id + '/status', 'PUT', {
+                    trangThai: status === 'true'
+                });
             }
-            
-            await apiCall('/brands/' + id, 'PUT', brandData);
-        }
-        
-        async function deleteBrandFromForm() {
-            const id = document.getElementById('brandId').value;
-            if (!id) {
-                showResponse({ error: 'Vui lòng nhập Brand ID!' }, 400, 'Validation Error');
-                return;
-            }
-            
-            await apiCall('/brands/' + id, 'DELETE');
-        }
-        
-        // Orders
-        async function getOrders() {
-            await apiCall('/orders');
         }
         
         async function createOrder() {
@@ -822,6 +950,7 @@
             };
             
             await apiCall('/orders', 'POST', orderData);
+
         }
         
         // Many-to-Many Test Functions
@@ -835,14 +964,14 @@
             }
             
             if (productIds.length === 0) {
-                showResponse({ error: 'Không có sản phẩm nào để thêm vào collection!' }, 400, 'Error');
+                showResponse({ error: 'Không có sản phẩm nào để thêm vào bộ sưu tập!' }, 400, 'Error');
                 return;
             }
             
             const collectionData = {
-                tenBoSuuTap: 'Test Many-to-Many Collection',
-                moTa: 'Collection để test mối quan hệ many-to-many',
-                hinhAnh: 'https://via.placeholder.com/300x200.png?text=Many2Many',
+                tenBoSuuTap: 'Bộ sưu tập Phòng Khách Hiện Đại',
+                moTa: 'Bộ sưu tập các món đồ nội thất phòng khách phong cách hiện đại',
+                hinhAnh: [{ url: 'https://via.placeholder.com/300x200.png?text=PhongKhach', laAnhChinh: true }],
                 sanPhams: productIds
             };
             
@@ -850,7 +979,7 @@
         }
         
         async function testProductCollections() {
-            const productId = prompt('Nhập Product ID để xem collections:');
+            const productId = prompt('Nhập Product ID để xem bộ sưu tập:');
             if (productId) {
                 await apiCall('/products/' + productId + '/collections');
             }
@@ -891,9 +1020,9 @@
             }
             
             const updateData = {
-                tenBoSuuTap: 'Updated Many-to-Many Collection',
-                moTa: 'Collection đã được update với products mới',
-                hinhAnh: 'https://via.placeholder.com/300x200.png?text=Updated',
+                tenBoSuuTap: 'Bộ sưu tập Phòng Ngủ Ấm Cúng',
+                moTa: 'Bộ sưu tập đã được cập nhật với các sản phẩm nội thất phòng ngủ mới',
+                hinhAnh: [{ url: 'https://via.placeholder.com/300x200.png?text=PhongNgu', laAnhChinh: true }],
                 sanPhams: newProductIds
             };
             
@@ -954,19 +1083,26 @@
         window.onload = function() {
             // Auto-load categories and brands
             loadCategoriesAndBrands();
+            // Show current API URL
+            showResponse({ message: 'API Test Page Loaded', api_base: API_BASE }, 200, 'Ready');
         };
     </script>
-<div style="margin: 20px;">
-            <h3>Test Image Management APIs</h3>
-            <button onclick="testUploadProductImages()" style="margin: 5px; padding: 10px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                Test Upload Images
-            </button>
-            <button onclick="testDeleteProductImage()" style="margin: 5px; padding: 10px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                Test Delete Image
-            </button>
-            <button onclick="testSetMainProductImage()" style="margin: 5px; padding: 10px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                Test Set Main Image
-            </button>
+    
+    <!-- Image Management Section -->
+    <div class="api-section" style="margin-top: 25px;">
+        <h3>Test Image Management APIs</h3>
+        <div class="endpoint">
+            <span class="method POST">POST</span>/api/products/:id/images
+            <button onclick="testUploadProductImages()">Upload Images</button>
         </div>
+        <div class="endpoint">
+            <span class="method DELETE">DELETE</span>/api/products/:id/images/:index
+            <button onclick="testDeleteProductImage()">Delete Image</button>
+        </div>
+        <div class="endpoint">
+            <span class="method PUT">PUT</span>/api/products/:id/images/:index/main
+            <button onclick="testSetMainProductImage()">Set Main Image</button>
+        </div>
+    </div>
     </body>
 </html>

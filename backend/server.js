@@ -47,7 +47,7 @@ app.get('/', (req, res) => {
 });
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_CONNECTIONSTRING || 'mongodb://localhost:27017/havyStore')
+mongoose.connect(process.env.MONGODB_CONNECTIONSTRING || process.env.MONGODB_URI || 'mongodb://localhost:27017/havyStore')
   .then(() => console.log('Connected to MongoDB'))
   .catch((err) => console.error('MongoDB connection error:', err));
 
